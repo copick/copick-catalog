@@ -180,8 +180,9 @@ def run():
         full = tm.util.append_faces(
             vertices_seq=[m1v, m2v, sv], faces_seq=[m1f, m2f, sf]
         )
-        full.fix_normals()
-        return tm.Trimesh(vertices=full[0], faces=full[1])
+        mesh = tm.Trimesh(vertices=full[0], faces=full[1])
+        mesh.fix_normals()
+        return mesh
 
     # Parsing Input
     args = get_args()
@@ -266,7 +267,7 @@ def run():
 setup(
     group="copick",
     name="fit_sample",
-    version="0.3.0",
+    version="0.4.0",
     title="Fit Sample Volume",
     description="fit a mesh describing the sample from two sets of points defining upper and lower boundary.",
     solution_creators=["Utz H. Ermel"],
