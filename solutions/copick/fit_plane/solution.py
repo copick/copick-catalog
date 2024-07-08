@@ -1,4 +1,4 @@
-###album catalog: cellcanvas
+###album catalog: copick
 
 from album.runner.api import setup, get_args
 
@@ -146,7 +146,7 @@ def run():
 
         vs = run.get_voxel_spacing(voxel_spacing)
         tomo = vs.get_tomogram(tomo_type)
-        max_dim = [d * 7.84 for d in zarr.open(tomo.zarr())["0"].shape[::-1]]
+        max_dim = [d * voxel_spacing for d in zarr.open(tomo.zarr())["0"].shape[::-1]]
 
         bottom_grid = fit_plane(points, grid_resolution, max_dim)
 
@@ -164,7 +164,7 @@ def run():
 setup(
     group="copick",
     name="fit_plane",
-    version="0.3.0",
+    version="0.4.0",
     title="Fit Plane",
     description="fit a plane to a set of copick points.",
     solution_creators=["Utz H. Ermel"],
