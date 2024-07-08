@@ -1,0 +1,74 @@
+album_api_version: 0.5.1
+args:
+- description: Path to the Copick configuration JSON file.
+  name: copick_config_path
+  required: true
+  type: string
+- default: top-layer
+  description: Name of the object defining top layer.
+  name: top_object
+  required: false
+  type: string
+- default: bottom-layer
+  description: Name of the object defining bottom layer.
+  name: bottom_object
+  required: false
+  type: string
+- description: Name of the input user.
+  name: input_user
+  required: true
+  type: string
+- description: ID of the input session.
+  name: input_session
+  required: true
+  type: string
+- description: Voxel spacing.
+  name: voxel_spacing
+  required: true
+  type: float
+- description: Type of tomogram.
+  name: tomo_type
+  required: true
+  type: string
+- default: 5,5
+  description: Resolution of the grid (2 comma-separated ints).
+  name: grid_resolution
+  required: false
+  type: string
+- default: 50,50
+  description: Resolution of the fit (2 comma-separated ints).
+  name: fit_resolution
+  required: false
+  type: string
+- default: sample
+  description: Name of the output object.
+  name: output_object
+  required: false
+  type: string
+- default: fit
+  description: Name of the output user.
+  name: output_user
+  required: false
+  type: string
+- default: '0'
+  description: Name of the output session.
+  name: output_session
+  required: false
+  type: string
+changelog: null
+description: fit a mesh describing the sample from two sets of points defining upper
+  and lower boundary.
+group: copick
+license: MIT
+name: fit_sample
+solution_creators:
+- Utz H. Ermel
+tags:
+- copick
+- plane
+- fitting
+- surface
+- segmentation
+timestamp: '2024-07-08T12:50:50.221972'
+title: Fit Sample Volume
+version: 0.2.0
