@@ -34,7 +34,7 @@ args:
   name: fit_resolution
   required: false
   type: string
-- default: null
+- default: ''
   description: Name of the output object.
   name: output_object
   required: false
@@ -62,6 +62,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-07-08T08:52:28.694490'
+timestamp: '2024-07-08T09:07:33.622429'
 title: Fit Plane
-version: 0.1.0
+version: 0.3.0

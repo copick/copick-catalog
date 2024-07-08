@@ -11,9 +11,12 @@ dependencies:
   - pip
   - zarr
   - numpy
+  - pytorch
   - pip:
     - album
-    - "copick @ git+https://github.com/uermel/copick.git@2d29f48"
+    - "copick[all] @ git+https://github.com/uermel/copick.git@2d29f48"
+    - tqdm
+    - torch-cubic-spline-grids
 """
 
 
@@ -128,7 +131,7 @@ def run():
         len(fit_resolution) == 2
     ), "Fit Resolution must be 2 comma-separated integers."
 
-    output_object = input_object if args.output_object is None else args.output_object
+    output_object = input_object if args.output_object == "" else args.output_object
     output_user = args.output_user
     output_session = args.output_session
 
@@ -161,7 +164,7 @@ def run():
 setup(
     group="copick",
     name="fit_plane",
-    version="0.1.0",
+    version="0.3.0",
     title="Fit Plane",
     description="fit a plane to a set of copick points.",
     solution_creators=["Utz H. Ermel"],
@@ -223,7 +226,7 @@ setup(
             "name": "output_object",
             "type": "string",
             "required": False,
-            "default": None,
+            "default": "",
             "description": "Name of the output object.",
         },
         {
