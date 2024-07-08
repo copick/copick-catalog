@@ -1,0 +1,61 @@
+album_api_version: 0.5.1
+args:
+- description: Path to the Copick configuration JSON file.
+  name: copick_config_path
+  required: true
+  type: string
+- description: Name of the first object.
+  name: object_a
+  required: true
+  type: string
+- description: Name of the first user.
+  name: user_a
+  required: true
+  type: string
+- description: ID of the first session.
+  name: session_a
+  required: true
+  type: string
+- description: Name of the second object.
+  name: object_b
+  required: true
+  type: string
+- description: Name of the second user.
+  name: user_b
+  required: true
+  type: string
+- description: ID of the second session.
+  name: session_b
+  required: true
+  type: string
+- default: reconstruction
+  description: Name of the output object.
+  name: output_object
+  required: false
+  type: string
+- default: fit
+  description: Name of the output user.
+  name: output_user
+  required: false
+  type: string
+- default: '0'
+  description: Name of the output session.
+  name: output_session
+  required: false
+  type: string
+changelog: null
+description: Compute the intersection of two meshes.
+group: copick
+license: MIT
+name: intersect_mesh
+solution_creators:
+- Utz H. Ermel
+tags:
+- copick
+- plane
+- fitting
+- surface
+- segmentation
+timestamp: '2024-07-08T13:54:18.371602'
+title: Intersect two meshes
+version: 0.3.0
