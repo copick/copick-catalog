@@ -1,0 +1,57 @@
+album_api_version: 0.5.1
+args:
+- description: Path to the Copick configuration JSON file.
+  name: copick_config_path
+  required: true
+  type: string
+- description: Voxel spacing.
+  name: voxel_spacing
+  required: true
+  type: float
+- description: Type of tomogram.
+  name: tomo_type
+  required: true
+  type: string
+- description: Name of the input object.
+  name: input_object
+  required: true
+  type: string
+- description: Name of the input user.
+  name: input_user
+  required: true
+  type: string
+- description: ID of the input session.
+  name: input_session
+  required: true
+  type: string
+- default: ''
+  description: Name of the output object.
+  name: output_object
+  required: false
+  type: string
+- default: from-mesh
+  description: Name of the output user.
+  name: output_user
+  required: false
+  type: string
+- default: '0'
+  description: Name of the output session.
+  name: output_session
+  required: false
+  type: string
+changelog: null
+description: Convert a watertight mesh to a dense voxel segmentation.
+group: copick
+license: MIT
+name: mesh_to_seg
+solution_creators:
+- Utz H. Ermel
+tags:
+- copick
+- plane
+- fitting
+- surface
+- segmentation
+timestamp: '2024-07-09T06:48:46.271908'
+title: Convert Mesh to Segmentation
+version: 0.5.0
