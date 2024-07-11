@@ -82,6 +82,7 @@ def run():
     # Parsing Input
     args = get_args()
     copick_config_path = args.copick_config_path
+    run_names = args.run_names
     voxel_spacing = args.voxel_spacing
     tomo_type = args.tomo_type
 
@@ -94,7 +95,13 @@ def run():
     # Code
     root = copick.from_file(copick_config_path)
 
-    for run in root.runs:
+    if run_names == "":
+        run_names = [r.name for r in root.runs]
+    else:
+        run_names = args.run_names.split(",")
+
+    for rname in run_names:
+        run = root.get_run(rname)
         print(run.name)
 
         vs = run.get_voxel_spacing(voxel_spacing)
@@ -130,7 +137,7 @@ def run():
 setup(
     group="copick",
     name="create_rec_limits",
-    version="0.3.0",
+    version="0.4.0",
     title="Create Reconstruction Limits",
     description="Create a mesh defining the valid reconstructed area.",
     solution_creators=["Utz H. Ermel"],
@@ -143,6 +150,13 @@ setup(
             "type": "string",
             "required": True,
             "description": "Path to the Copick configuration JSON file.",
+        },
+        {
+            "name": "run_names",
+            "type": "string",
+            "required": False,
+            "default": "",
+            "description": "Comma-separated list of run names.",
         },
         {
             "name": "voxel_spacing",
