@@ -4,6 +4,11 @@ args:
   name: copick_config_path
   required: true
   type: string
+- default: ''
+  description: Comma-separated list of run names.
+  name: run_names
+  required: false
+  type: string
 - description: Name of the input object.
   name: input_object
   required: true
@@ -62,6 +67,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-07-08T13:08:28.824676'
+timestamp: '2024-07-10T22:49:12.688611'
 title: Fit Plane
-version: 0.4.0
+version: 0.5.0

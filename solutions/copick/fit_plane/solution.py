@@ -116,6 +116,7 @@ def run():
     # Parsing Input
     args = get_args()
     copick_config_path = args.copick_config_path
+    run_names = args.run_names
     input_object = args.input_object
     input_user = args.input_user
     input_session = args.input_session
@@ -138,7 +139,13 @@ def run():
     # Code
     root = copick.from_file(copick_config_path)
 
-    for run in root.runs:
+    if run_names == "":
+        run_names = [r.name for r in root.runs]
+    else:
+        run_names = args.run_names.split(",")
+
+    for rname in run_names:
+        run = root.get_run(rname)
         print(run.name)
         points = run.get_picks(
             object_name=input_object, user_id=input_user, session_id=input_session
@@ -164,7 +171,7 @@ def run():
 setup(
     group="copick",
     name="fit_plane",
-    version="0.4.0",
+    version="0.5.0",
     title="Fit Plane",
     description="fit a plane to a set of copick points.",
     solution_creators=["Utz H. Ermel"],
@@ -177,6 +184,13 @@ setup(
             "type": "string",
             "required": True,
             "description": "Path to the Copick configuration JSON file.",
+        },
+        {
+            "name": "run_names",
+            "type": "string",
+            "required": False,
+            "default": "",
+            "description": "Comma-separated list of run names.",
         },
         {
             "name": "input_object",
