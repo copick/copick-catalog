@@ -4,6 +4,11 @@ args:
   name: copick_config_path
   required: true
   type: string
+- default: ''
+  description: Comma-separated list of run names.
+  name: run_names
+  required: false
+  type: string
 - default: top-layer
   description: Name of the object defining top layer.
   name: top_object
@@ -69,6 +74,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-07-08T13:10:59.603126'
+timestamp: '2024-07-10T22:49:30.018732'
 title: Fit Sample Volume
-version: 0.4.0
+version: 0.6.0

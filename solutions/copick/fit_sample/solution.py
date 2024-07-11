@@ -13,6 +13,7 @@ dependencies:
   - numpy
   - pytorch
   - trimesh
+  - scipy
   - pip:
     - album
     - "copick[all] @ git+https://github.com/uermel/copick.git@2d29f48"
@@ -187,6 +188,7 @@ def run():
     # Parsing Input
     args = get_args()
     copick_config_path = args.copick_config_path
+    run_names = args.run_names
     top_object = args.top_object
     bottom_object = args.bottom_object
     input_user = args.input_user
@@ -210,7 +212,13 @@ def run():
     # Code
     root = copick.from_file(copick_config_path)
 
-    for run in root.runs:
+    if run_names == "":
+        run_names = [r.name for r in root.runs]
+    else:
+        run_names = args.run_names.split(",")
+
+    for rname in run_names:
+        run = root.get_run(rname)
         print(run.name)
         bottom = run.get_picks(
             object_name=bottom_object, user_id=input_user, session_id=input_session
@@ -267,7 +275,7 @@ def run():
 setup(
     group="copick",
     name="fit_sample",
-    version="0.4.0",
+    version="0.6.0",
     title="Fit Sample Volume",
     description="fit a mesh describing the sample from two sets of points defining upper and lower boundary.",
     solution_creators=["Utz H. Ermel"],
@@ -280,6 +288,13 @@ setup(
             "type": "string",
             "required": True,
             "description": "Path to the Copick configuration JSON file.",
+        },
+        {
+            "name": "run_names",
+            "type": "string",
+            "required": False,
+            "default": "",
+            "description": "Comma-separated list of run names.",
         },
         {
             "name": "top_object",
