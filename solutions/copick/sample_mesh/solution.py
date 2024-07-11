@@ -107,6 +107,7 @@ def run():
     # Parsing Input
     args = get_args()
     copick_config_path = args.copick_config_path
+    run_names = args.run_names
     input_object = args.input_object
     input_user = args.input_user
     input_session = args.input_session
@@ -129,7 +130,13 @@ def run():
     # Code
     root = copick.from_file(copick_config_path)
 
-    for run in root.runs:
+    if run_names == "":
+        run_names = [r.name for r in root.runs]
+    else:
+        run_names = args.run_names.split(",")
+
+    for rname in run_names:
+        run = root.get_run(rname)
         print(run.name)
 
         vs = run.get_voxel_spacing(voxel_spacing)
@@ -188,7 +195,7 @@ def run():
 setup(
     group="copick",
     name="sample_mesh",
-    version="0.3.0",
+    version="0.4.0",
     title="Sample points in/on/outside a mesh.",
     description="Sample random points in/on/outside a mesh.",
     solution_creators=["Utz H. Ermel"],
@@ -201,6 +208,13 @@ setup(
             "type": "string",
             "required": True,
             "description": "Path to the Copick configuration JSON file.",
+        },
+        {
+            "name": "run_names",
+            "type": "string",
+            "required": False,
+            "default": "",
+            "description": "Comma-separated list of run names.",
         },
         {
             "name": "voxel_spacing",
