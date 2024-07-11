@@ -4,6 +4,11 @@ args:
   name: copick_config_path
   required: true
   type: string
+- default: ''
+  description: Comma-separated list of run names.
+  name: run_names
+  required: false
+  type: string
 - description: Name of the first object.
   name: object_a
   required: true
@@ -56,6 +61,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-07-08T13:54:18.371602'
+timestamp: '2024-07-10T22:49:44.687633'
 title: Intersect two meshes
-version: 0.3.0
+version: 0.4.0
