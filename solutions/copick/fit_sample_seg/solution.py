@@ -82,9 +82,15 @@ def run():
         xy2 = torch.stack([yy2, xx2], dim=2).view(-1, 2).to(device)
         zz.to(device)
 
-        plane_normal = torch.nn.Parameter(torch.tensor([1.0, 0.0, 0.0])).to(device)
-        top_offset = torch.nn.Parameter(torch.tensor([-0.8])).to(device)
-        bot_offset = torch.nn.Parameter(torch.tensor([-0.2])).to(device)
+        plane_normal = torch.nn.Parameter(
+            torch.tensor([1.0, 0.0, 0.0], device="cuda", requires_grad=True)
+        )
+        top_offset = torch.nn.Parameter(
+            torch.tensor([-0.8], device="cuda", requires_grad=True)
+        )
+        bot_offset = torch.nn.Parameter(
+            torch.tensor([-0.2], device="cuda", requires_grad=True)
+        )
 
         optimizer = torch.optim.Adam([plane_normal, top_offset, bot_offset], lr=0.1)
 
@@ -117,7 +123,7 @@ def run():
             t.set_description(f"1 - IoU: {loss.item()}")
             t.refresh()
 
-        return plane_normal, top_offset, bot_offset
+        return plane_normal.to("cpu"), top_offset.to("cpu"), bot_offset.to("cpu")
 
     def plane_to_picks(
         plane_normal: torch.Tensor,
@@ -343,7 +349,7 @@ def run():
 setup(
     group="copick",
     name="fit_sample_seg",
-    version="0.6.0",
+    version="0.7.0",
     title="Fit Sample Volume from segmentation",
     description="fit a mesh describing the sample from a binary segmentation.",
     solution_creators=["Utz H. Ermel"],
