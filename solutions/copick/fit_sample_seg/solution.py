@@ -10,7 +10,7 @@ dependencies:
   - python=3.10
   - pip
   - zarr
-  - numpy
+  - numpy<=2
   - pytorch
   - trimesh
   - scipy
@@ -343,7 +343,7 @@ def run():
 setup(
     group="copick",
     name="fit_sample_seg",
-    version="0.3.0",
+    version="0.4.0",
     title="Fit Sample Volume from segmentation",
     description="fit a mesh describing the sample from a binary segmentation.",
     solution_creators=["Utz H. Ermel"],

@@ -78,6 +78,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-07-11T17:51:42.370180'
+timestamp: '2024-07-11T17:58:40.645381'
 title: Fit Sample Volume from segmentation
-version: 0.3.0
+version: 0.4.0
