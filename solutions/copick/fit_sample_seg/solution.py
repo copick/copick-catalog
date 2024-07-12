@@ -76,9 +76,9 @@ def run():
         )
 
         # Norm to [0, 1]
-        xx2 = xx2 / voldim[2]
-        yy2 = yy2 / voldim[1]
-        zz = zz / voldim[0]
+        xx2 = xx2.to(device) / voldim[2]
+        yy2 = yy2.to(device) / voldim[1]
+        zz = zz.to(device) / voldim[0]
         xy2 = torch.stack([yy2, xx2], dim=2).view(-1, 2).to(device)
         zz.to(device)
 
@@ -343,7 +343,7 @@ def run():
 setup(
     group="copick",
     name="fit_sample_seg",
-    version="0.5.0",
+    version="0.6.0",
     title="Fit Sample Volume from segmentation",
     description="fit a mesh describing the sample from a binary segmentation.",
     solution_creators=["Utz H. Ermel"],
