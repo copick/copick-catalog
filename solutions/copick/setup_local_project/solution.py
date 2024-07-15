@@ -82,10 +82,10 @@ def run():
     root = copick.from_file(copick_config_path)
 
     # Write to static root
-    if root.meta.static_root is not None:
-        os.mkdir(root.meta.static_root)
-        os.mkdir(root.meta.overlay_root)
-        root.meta.overlay_root = root.meta.static_root
+    if root.config.static_root is not None:
+        os.mkdir(root.config.static_root)
+        os.mkdir(root.config.overlay_root)
+        root.config.overlay_root = root.config.static_root
 
     # Find tomograms
     tomo_paths = glob.glob(f"{tomo_dir}/*.mrc")
@@ -135,7 +135,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.2.0",
+    version="0.3.0",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
