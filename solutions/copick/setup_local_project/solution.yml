@@ -7,11 +7,11 @@ args:
   type: string
 - description: Path to the directory containing the tomograms.
   name: tomo_dir
-  required: false
+  required: true
   type: string
 - description: Type of tomogram.
   name: tomo_type
-  required: false
+  required: true
   type: string
 changelog: null
 description: Create a copick project. Optionally import tomograms.
@@ -25,6 +25,6 @@ tags:
 - setup
 - tomogram
 - import
-timestamp: '2024-07-15T09:34:46.289133'
+timestamp: '2024-07-15T10:11:38.939028'
 title: Set up a copick project.
-version: 0.1.0
+version: 0.2.0

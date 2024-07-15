@@ -135,7 +135,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.1.0",
+    version="0.2.0",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
@@ -152,13 +152,13 @@ setup(
         {
             "name": "tomo_dir",
             "type": "string",
-            "required": False,
+            "required": True,
             "description": "Path to the directory containing the tomograms.",
         },
         {
             "name": "tomo_type",
             "type": "string",
-            "required": False,
+            "required": True,
             "description": "Type of tomogram.",
         },
     ],
