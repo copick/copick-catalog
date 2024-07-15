@@ -126,7 +126,7 @@ def run():
             pyramid=tomo_pyr,
             group=root_group,
             axes=ome_zarr_axes(),
-            coordinate_transformations=[ome_zarr_transforms(voxel_size)],
+            coordinate_transformations=ome_zarr_transforms(voxel_size),
             storage_options=dict(chunks=(256, 256, 256), overwrite=True),
             compute=True,
         )
@@ -135,7 +135,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.5.0",
+    version="0.6.0",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
