@@ -83,8 +83,8 @@ def run():
 
     # Write to static root
     if root.config.static_root is not None:
-        os.mkdir(root.config.static_root.replace("local://", ""))
-        os.mkdir(root.config.overlay_root.replace("local://", ""))
+        os.makedirs(root.config.static_root.replace("local://", ""), exist_ok=True)
+        os.makedirs(root.config.overlay_root.replace("local://", ""), exist_ok=True)
         root.config.overlay_root = root.config.static_root
 
     # Find tomograms
@@ -135,7 +135,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.4.0",
+    version="0.5.0",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
