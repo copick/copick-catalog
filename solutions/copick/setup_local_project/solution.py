@@ -54,24 +54,30 @@ def run():
 
     def ome_zarr_transforms(voxel_size: float) -> List[List[Dict[str, Any]]]:
         return [
-            [{
-                "scale": [voxel_size, voxel_size, voxel_size],
-                "type": "scale",
-            }],
-            [{
-                "scale": [voxel_size / 2, voxel_size / 2, voxel_size / 2],
-                "type": "scale",
-            }],
-            [{
-                "scale": [voxel_size / 4, voxel_size / 4, voxel_size / 4],
-                "type": "scale",
-            }],
+            [
+                {
+                    "scale": [voxel_size, voxel_size, voxel_size],
+                    "type": "scale",
+                }
+            ],
+            [
+                {
+                    "scale": [voxel_size / 2, voxel_size / 2, voxel_size / 2],
+                    "type": "scale",
+                }
+            ],
+            [
+                {
+                    "scale": [voxel_size / 4, voxel_size / 4, voxel_size / 4],
+                    "type": "scale",
+                }
+            ],
         ]
 
-    def pyramid(image: np.ndarray, levels: int) -> List[np.ndarray]:
+    def pyramid(image: np.ndarray) -> List[np.ndarray]:
         pyramid = [image]
-        for _ in range(levels - 1):
-            image = downscale_local_mean(image, (2, 2, 2))
+        for f in [2, 4]:
+            image = downscale_local_mean(image, (1 / f, 1 / f, 1 / f))
             pyramid.append(image)
         return pyramid
 
@@ -138,7 +144,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.7.0",
+    version="0.8.0",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
