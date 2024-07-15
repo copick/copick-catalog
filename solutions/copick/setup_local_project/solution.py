@@ -105,7 +105,7 @@ def run():
             voxel_size = float(mrc.voxel_size.x)
             tomo = mrc.data
 
-        tomo_pyr = pyramid(tomo, 3)
+        tomo_pyr = pyramid(tomo)
 
         name = os.path.basename(tp).split(".")[0]
 
@@ -144,7 +144,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.8.0",
+    version="0.9.0",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
