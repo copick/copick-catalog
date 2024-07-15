@@ -100,7 +100,7 @@ def run():
     # Find tomograms
     tomo_paths = glob.glob(f"{tomo_dir}/*.mrc")
 
-    for tp in tomo_paths[:2]:
+    for tp in tomo_paths:
         print(f"Importing {tp}")
         with mrcfile.open(tp, "r") as mrc:
             voxel_size = float(mrc.voxel_size.x)
@@ -152,7 +152,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.12.0",
+    version="0.13.0",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
