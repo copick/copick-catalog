@@ -62,22 +62,22 @@ def run():
             ],
             [
                 {
-                    "scale": [voxel_size / 2, voxel_size / 2, voxel_size / 2],
+                    "scale": [voxel_size * 2, voxel_size * 2, voxel_size * 2],
                     "type": "scale",
                 }
             ],
             [
                 {
-                    "scale": [voxel_size / 4, voxel_size / 4, voxel_size / 4],
+                    "scale": [voxel_size * 4, voxel_size * 4, voxel_size * 4],
                     "type": "scale",
                 }
             ],
         ]
 
-    def pyramid(image: np.ndarray) -> List[np.ndarray]:
+    def pyramid(image: np.ndarray, levels: int) -> List[np.ndarray]:
         pyramid = [image]
-        for f in [2, 4]:
-            image = downscale_local_mean(image, (1 / f, 1 / f, 1 / f))
+        for _ in range(levels - 1):
+            image = downscale_local_mean(image, (2, 2, 2))
             pyramid.append(image)
         return pyramid
 
@@ -105,7 +105,7 @@ def run():
             voxel_size = float(mrc.voxel_size.x)
             tomo = mrc.data
 
-        tomo_pyr = pyramid(tomo)
+        tomo_pyr = pyramid(tomo, 3)
 
         name = os.path.basename(tp).split(".")[0]
 
@@ -144,7 +144,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.9.0",
+    version="0.10.0",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
