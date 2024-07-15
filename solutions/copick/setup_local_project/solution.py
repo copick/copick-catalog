@@ -86,6 +86,7 @@ def run():
     copick_config_path = args.copick_config_path
     tomo_dir = args.tomo_dir
     tomo_type = args.tomo_type
+    as_int8 = args.as_int8
 
     # Create Copick project
     root = copick.from_file(copick_config_path)
@@ -104,6 +105,14 @@ def run():
         with mrcfile.open(tp, "r") as mrc:
             voxel_size = float(mrc.voxel_size.x)
             tomo = mrc.data
+
+        if as_int8:
+            min = np.percentile(tomo, 1)
+            max = np.percentile(tomo, 99)
+            tomo = np.clip(tomo, min, max)
+            tomo = (tomo - min) / (max - min) * 255
+            tomo = tomo - 128
+            tomo = tomo.astype(np.int8)
 
         tomo_pyr = pyramid(tomo, 3)
 
@@ -144,7 +153,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.10.0",
+    version="0.11.0",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
@@ -169,6 +178,13 @@ setup(
             "type": "string",
             "required": True,
             "description": "Type of tomogram.",
+        },
+        {
+            "name": "as_int8",
+            "type": "boolean",
+            "required": False,
+            "default": True,
+            "description": "Whether to write the segmentation as int8.",
         },
     ],
     run=run,

@@ -13,6 +13,11 @@ args:
   name: tomo_type
   required: true
   type: string
+- default: true
+  description: Whether to write the segmentation as int8.
+  name: as_int8
+  required: false
+  type: boolean
 changelog: null
 description: Create a copick project. Optionally import tomograms.
 group: copick
@@ -25,6 +30,6 @@ tags:
 - setup
 - tomogram
 - import
-timestamp: '2024-07-15T11:00:59.811185'
+timestamp: '2024-07-15T11:22:58.563621'
 title: Set up a copick project.
-version: 0.10.0
+version: 0.11.0
