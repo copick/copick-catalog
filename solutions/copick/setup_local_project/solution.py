@@ -77,7 +77,7 @@ def run():
     def pyramid(image: np.ndarray, levels: int) -> List[np.ndarray]:
         pyramid = [image]
         for _ in range(levels - 1):
-            image = downscale_local_mean(image, (2, 2, 2))
+            image = downscale_local_mean(image, (2, 2, 2)).astype(np.int8)
             pyramid.append(image)
         return pyramid
 
@@ -115,7 +115,6 @@ def run():
             tomo = tomo.astype(np.int8)
 
         tomo_pyr = pyramid(tomo, 3)
-
         name = os.path.basename(tp).split(".")[0]
 
         # Create Run
@@ -153,7 +152,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.11.0",
+    version="0.12.0",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
