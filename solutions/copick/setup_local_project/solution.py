@@ -16,7 +16,7 @@ dependencies:
   - mrcfile
   - pip:
     - album
-    - "copick[all] @ git+https://github.com/uermel/copick.git@4ab3068"
+    - "copick[all]>=0.5.2"
 """
 
 
@@ -152,7 +152,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.13.0",
+    version="0.14.0",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
