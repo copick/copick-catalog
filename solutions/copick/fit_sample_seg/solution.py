@@ -17,7 +17,7 @@ dependencies:
   - scikit-image
   - pip:
     - album
-    - "copick[all] @ git+https://github.com/uermel/copick.git@2d29f48"
+    - "copick[all]>=0.5.2"
     - tqdm
     - torch-cubic-spline-grids
 """
@@ -83,13 +83,13 @@ def run():
         zz.to(device)
 
         plane_normal = torch.nn.Parameter(
-            torch.tensor([1.0, 0.0, 0.0], device="cuda", requires_grad=True)
+            torch.tensor([1.0, 0.0, 0.0], device=device, requires_grad=True)
         )
         top_offset = torch.nn.Parameter(
-            torch.tensor([-0.8], device="cuda", requires_grad=True)
+            torch.tensor([-0.8], device=device, requires_grad=True)
         )
         bot_offset = torch.nn.Parameter(
-            torch.tensor([-0.2], device="cuda", requires_grad=True)
+            torch.tensor([-0.2], device=device, requires_grad=True)
         )
 
         optimizer = torch.optim.Adam([plane_normal, top_offset, bot_offset], lr=0.1)
@@ -349,7 +349,7 @@ def run():
 setup(
     group="copick",
     name="fit_sample_seg",
-    version="0.7.0",
+    version="0.9.0",
     title="Fit Sample Volume from segmentation",
     description="fit a mesh describing the sample from a binary segmentation.",
     solution_creators=["Utz H. Ermel"],
