@@ -16,7 +16,7 @@ dependencies:
   - mrcfile
   - pip:
     - album
-    - "copick[all] @ git+https://github.com/uermel/copick.git@0cb6786"
+    - "copick[all]>=0.5.2"
 """
 
 
@@ -148,7 +148,7 @@ def run():
 setup(
     group="copick",
     name="import_segmentations",
-    version="0.5.0",
+    version="0.6.0",
     title="Import segmentations.",
     description="Import segmentations into a copick project.",
     solution_creators=["Utz H. Ermel"],

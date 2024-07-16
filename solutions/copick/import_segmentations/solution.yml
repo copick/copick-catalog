@@ -50,6 +50,6 @@ tags:
 - setup
 - tomogram
 - import
-timestamp: '2024-07-16T09:55:42.646903'
+timestamp: '2024-07-16T13:19:26.366496'
 title: Import segmentations.
-version: 0.5.0
+version: 0.6.0
