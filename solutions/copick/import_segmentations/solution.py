@@ -103,7 +103,7 @@ def run():
     for run in root.runs:
         print(f"Importing mask for {run.name}")
 
-        file = f"{mask_dir}{name_format.format(run_name=run.name)}.mrc"
+        file = f"{mask_dir}{name_format.format(run_name=run.name)}"
 
         with mrcfile.open(file, "r") as mrc:
             tomo = mrc.data
@@ -148,7 +148,7 @@ def run():
 setup(
     group="copick",
     name="import_segmentations",
-    version="0.3.0",
+    version="0.4.0",
     title="Import segmentations.",
     description="Import segmentations into a copick project.",
     solution_creators=["Utz H. Ermel"],
