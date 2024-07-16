@@ -103,7 +103,7 @@ def run():
     for run in root.runs:
         print(f"Importing mask for {run.name}")
 
-        file = f"{mask_dir}name_format.format(run_name=run.name).mrc"
+        file = f"{mask_dir}{name_format.format(run_name=run.name)}.mrc"
 
         with mrcfile.open(file, "r") as mrc:
             tomo = mrc.data
@@ -148,7 +148,7 @@ def run():
 setup(
     group="copick",
     name="import_segmentations",
-    version="0.2.0",
+    version="0.3.0",
     title="Import segmentations.",
     description="Import segmentations into a copick project.",
     solution_creators=["Utz H. Ermel"],
@@ -192,14 +192,14 @@ setup(
             "description": "Name of the output pickable object.",
             "type": "string",
             "required": False,
-            "default": "random-points",
+            "default": "segmentation",
         },
         {
             "name": "out_user",
             "description": "User/Tool name for output points.",
             "type": "string",
             "required": False,
-            "default": "solution-01",
+            "default": "seg",
         },
         {
             "name": "out_session",

@@ -23,12 +23,12 @@ args:
   name: as_int8
   required: false
   type: boolean
-- default: random-points
+- default: segmentation
   description: Name of the output pickable object.
   name: out_object
   required: false
   type: string
-- default: solution-01
+- default: seg
   description: User/Tool name for output points.
   name: out_user
   required: false
@@ -50,6 +50,6 @@ tags:
 - setup
 - tomogram
 - import
-timestamp: '2024-07-16T09:33:27.492180'
+timestamp: '2024-07-16T09:43:05.388930'
 title: Import segmentations.
-version: 0.2.0
+version: 0.3.0
