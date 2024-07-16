@@ -15,7 +15,7 @@ dependencies:
   - scipy
   - pip:
     - album
-    - "copick[all] @ git+https://github.com/uermel/copick.git@2d29f48"
+    - "copick[all]>=0.5.2"
     - tqdm
     - manifold3d
 """
@@ -107,7 +107,7 @@ def run():
 setup(
     group="copick",
     name="intersect_mesh",
-    version="0.4.0",
+    version="0.5.0",
     title="Intersect two meshes",
     description="Compute the intersection of two meshes.",
     solution_creators=["Utz H. Ermel"],
