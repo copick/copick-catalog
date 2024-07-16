@@ -14,7 +14,7 @@ dependencies:
   - pytorch
   - pip:
     - album
-    - "copick[all] @ git+https://github.com/uermel/copick.git@2d29f48"
+    - "copick[all]>=0.5.2"
     - tqdm
     - torch-cubic-spline-grids
 """
@@ -171,7 +171,7 @@ def run():
 setup(
     group="copick",
     name="fit_plane",
-    version="0.5.0",
+    version="0.6.0",
     title="Fit Plane",
     description="fit a plane to a set of copick points.",
     solution_creators=["Utz H. Ermel"],
