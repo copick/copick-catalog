@@ -14,7 +14,7 @@ dependencies:
   - trimesh
   - pip:
     - album
-    - "copick[all] @ git+https://github.com/uermel/copick.git@2d29f48"
+    - "copick[all]>=0.5.2"
     - tqdm
 """
 
@@ -137,7 +137,7 @@ def run():
 setup(
     group="copick",
     name="create_rec_limits",
-    version="0.4.0",
+    version="0.5.0",
     title="Create Reconstruction Limits",
     description="Create a mesh defining the valid reconstructed area.",
     solution_creators=["Utz H. Ermel"],
