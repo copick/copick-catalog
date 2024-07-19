@@ -34,6 +34,7 @@ def run():
     out_user = args.out_user
     out_session = args.out_session
     overwrite = args.overwrite
+    run_names = args.run_names
 
     # Create Copick project
     root = copick.from_file(copick_config_path)
@@ -50,8 +51,14 @@ def run():
 
             root = CopickRootFSSpec(config)
 
+    if run_names == "":
+        run_names = [r.name for r in root.runs]
+    else:
+        run_names = args.run_names.split(",")
+
     # Create picks
-    for run in root.runs:
+    for name in run_names:
+        run = root.get_run(name)
         print(f"Creating picks for {run.name}")
 
         picks = run.get_picks(
@@ -77,7 +84,7 @@ def run():
 setup(
     group="copick",
     name="create_empty_picks",
-    version="0.2.0",
+    version="0.3.0",
     title="Create empty picks.",
     description="Create empty picks inside a copick project.",
     solution_creators=["Utz H. Ermel"],
@@ -115,6 +122,13 @@ setup(
             "type": "boolean",
             "required": False,
             "default": False,
+        },
+        {
+            "name": "run_names",
+            "type": "string",
+            "required": False,
+            "default": "",
+            "description": "Comma-separated list of run names.",
         },
     ],
     run=run,

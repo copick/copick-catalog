@@ -22,6 +22,11 @@ args:
   name: overwrite
   required: false
   type: boolean
+- default: ''
+  description: Comma-separated list of run names.
+  name: run_names
+  required: false
+  type: string
 changelog: null
 description: Create empty picks inside a copick project.
 group: copick
@@ -34,6 +39,6 @@ tags:
 - setup
 - picks
 - creation
-timestamp: '2024-07-18T18:20:07.388400'
+timestamp: '2024-07-19T14:33:23.586190'
 title: Create empty picks.
-version: 0.2.0
+version: 0.3.0
