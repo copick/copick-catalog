@@ -39,15 +39,16 @@ def run():
     root = copick.from_file(copick_config_path)
 
     # Write to static root
-    if root.config.static_root is not None:
-        os.makedirs(root.config.static_root.replace("local://", ""), exist_ok=True)
-        os.makedirs(root.config.overlay_root.replace("local://", ""), exist_ok=True)
+    if root.config.config_type == "filesystem":
+        if root.config.static_root is not None:
+            os.makedirs(root.config.static_root.replace("local://", ""), exist_ok=True)
+            os.makedirs(root.config.overlay_root.replace("local://", ""), exist_ok=True)
 
-        config = copy.copy(root.config)
-        config.overlay_root = config.static_root
-        config.overlay_fs_args = config.static_fs_args
+            config = copy.copy(root.config)
+            config.overlay_root = config.static_root
+            config.overlay_fs_args = config.static_fs_args
 
-        root = CopickRootFSSpec(config)
+            root = CopickRootFSSpec(config)
 
     # Create picks
     for run in root.runs:
@@ -76,7 +77,7 @@ def run():
 setup(
     group="copick",
     name="create_empty_picks",
-    version="0.1.0",
+    version="0.2.0",
     title="Create empty picks.",
     description="Create empty picks inside a copick project.",
     solution_creators=["Utz H. Ermel"],
