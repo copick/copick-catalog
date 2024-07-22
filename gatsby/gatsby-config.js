@@ -1,5 +1,5 @@
 module.exports = {
-  pathPrefix: `/`,
+  pathPrefix: `/copick-catalog/`,
   siteMetadata: {
     title: 'copick album catalog',
     subtitle: 'sharing copick tools',
