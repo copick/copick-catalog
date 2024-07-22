@@ -1,9 +1,9 @@
 module.exports = {
-  pathPrefix: `/catalogs/default`,
+  pathPrefix: `/`,
   siteMetadata: {
-    title: 'album catalog',
-    subtitle: 'sharing favourite solutions across tools and domains',
-    catalog_url: 'https://gitlab.com/album-app/catalogs/templates/catalog-gatsby',
+    title: 'copick album catalog',
+    subtitle: 'sharing copick tools',
+    catalog_url: 'https://github.com/copick/copick-catalog',
     menuLinks:[
       {
          name:'Catalog',
