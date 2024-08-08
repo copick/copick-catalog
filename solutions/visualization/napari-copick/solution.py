@@ -20,6 +20,12 @@ dependencies:
   - pip:
     - copick
     - git+https://github.com/copick/napari-copick
+    - paramiko
+    - trimesh
+    - s3fs
+    - smbprotocol
+    - "sshfs>=2024.6.0"
+    - pooch
 """
 )
 
@@ -44,7 +50,7 @@ def run():
 setup(
     group="visualization",
     name="napari-copick",
-    version="0.0.1",
+    version="0.0.2",
     title="Run napari-copick.",
     description="Run the napari-copick",
     solution_creators=["Kyle Harrington"],

@@ -4,7 +4,7 @@ args:
   name: config_path
   required: true
   type: string
-changelog: Initial deploy
+changelog: Update for samba and sshfs support
 cite:
 - text: copick team.
   url: https://copick.github.io/copick
@@ -23,6 +23,6 @@ tags:
 - Python
 - napari
 - copick
-timestamp: '2024-08-08T09:46:24.849285'
+timestamp: '2024-08-08T15:48:33.200123'
 title: Run napari-copick.
-version: 0.0.1
+version: 0.0.2
