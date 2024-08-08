@@ -1,0 +1,28 @@
+album_api_version: 0.5.1
+args:
+- description: Path to the copick config file
+  name: config_path
+  required: true
+  type: string
+changelog: Initial deploy
+cite:
+- text: copick team.
+  url: https://copick.github.io/copick
+covers:
+- description: Copick Plugin screenshot.
+  source: cover.png
+description: Run the napari-copick
+group: visualization
+license: MIT
+name: napari-copick
+solution_creators:
+- Kyle Harrington
+tags:
+- imaging
+- cryoet
+- Python
+- napari
+- copick
+timestamp: '2024-08-08T09:46:24.849285'
+title: Run napari-copick.
+version: 0.0.1
