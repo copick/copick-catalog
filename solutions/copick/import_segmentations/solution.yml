@@ -5,11 +5,11 @@ args:
   name: copick_config_path
   required: true
   type: string
-- description: Path to the directory containing the tomograms.
+- description: Path to the directory containing the segmentation masks.
   name: mask_dir
   required: true
   type: string
-- description: Voxel size of the tomograms.
+- description: Voxel size of the segmentation masks.
   name: voxel_size
   required: true
   type: float
@@ -50,6 +50,6 @@ tags:
 - setup
 - tomogram
 - import
-timestamp: '2024-07-16T13:19:26.366496'
+timestamp: '2024-08-09T12:49:46.511993'
 title: Import segmentations.
-version: 0.6.0
+version: 0.7.0

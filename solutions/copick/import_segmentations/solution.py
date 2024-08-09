@@ -148,7 +148,7 @@ def run():
 setup(
     group="copick",
     name="import_segmentations",
-    version="0.6.0",
+    version="0.7.0",
     title="Import segmentations.",
     description="Import segmentations into a copick project.",
     solution_creators=["Utz H. Ermel"],
@@ -166,13 +166,13 @@ setup(
             "name": "mask_dir",
             "type": "string",
             "required": True,
-            "description": "Path to the directory containing the tomograms.",
+            "description": "Path to the directory containing the segmentation masks.",
         },
         {
             "name": "voxel_size",
             "type": "float",
             "required": True,
-            "description": "Voxel size of the tomograms.",
+            "description": "Voxel size of the segmentation masks.",
         },
         {
             "name": "name_format",
