@@ -5,7 +5,6 @@ from album.runner.api import setup, get_args
 env_file = """
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - python=3.10
   - pip
@@ -84,7 +83,7 @@ def run():
 setup(
     group="copick",
     name="create_empty_picks",
-    version="0.3.0",
+    version="0.3.1",
     title="Create empty picks.",
     description="Create empty picks inside a copick project.",
     solution_creators=["Utz H. Ermel"],
