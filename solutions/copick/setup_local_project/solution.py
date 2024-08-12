@@ -22,6 +22,8 @@ dependencies:
 def run():
     # Imports
     import copick
+    from copick.impl.filesystem import CopickRootFSSpec
+    import copy
     import glob
     import mrcfile
     import numpy as np
@@ -94,7 +96,12 @@ def run():
     if root.config.static_root is not None:
         os.makedirs(root.config.static_root.replace("local://", ""), exist_ok=True)
         os.makedirs(root.config.overlay_root.replace("local://", ""), exist_ok=True)
-        root.config.overlay_root = root.config.static_root
+
+        config = copy.copy(root.config)
+        config.overlay_root = config.static_root
+        config.overlay_fs_args = config.static_fs_args
+
+        root = CopickRootFSSpec(config)
 
     # Find tomograms
     tomo_paths = glob.glob(f"{tomo_dir}/*.mrc")
@@ -151,7 +158,7 @@ def run():
 setup(
     group="copick",
     name="setup_local_project",
-    version="0.14.1",
+    version="0.15.1",
     title="Set up a copick project.",
     description="Create a copick project. Optionally import tomograms.",
     solution_creators=["Utz H. Ermel"],
