@@ -54,7 +54,7 @@ args:
   name: output_session
   required: false
   type: string
-changelog: null
+changelog: Remove defaults
 description: fit a plane to a set of copick points.
 group: copick
 license: MIT
@@ -67,6 +67,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-07-16T13:18:45.835577'
+timestamp: '2024-08-12T11:23:42.817194'
 title: Fit Plane
-version: 0.6.0
+version: 0.6.1
