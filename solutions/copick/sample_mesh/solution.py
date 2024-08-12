@@ -5,7 +5,6 @@ from album.runner.api import setup, get_args
 env_file = """
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - python=3.10
   - pip
@@ -195,7 +194,7 @@ def run():
 setup(
     group="copick",
     name="sample_mesh",
-    version="0.5.0",
+    version="0.5.1",
     title="Sample points in/on/outside a mesh.",
     description="Sample random points in/on/outside a mesh.",
     solution_creators=["Utz H. Ermel"],
