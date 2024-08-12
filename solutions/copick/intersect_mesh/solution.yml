@@ -48,7 +48,7 @@ args:
   name: output_session
   required: false
   type: string
-changelog: null
+changelog: Remove defaults
 description: Compute the intersection of two meshes.
 group: copick
 license: MIT
@@ -61,6 +61,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-07-16T13:19:41.744413'
+timestamp: '2024-08-12T11:24:59.635344'
 title: Intersect two meshes
-version: 0.5.0
+version: 0.5.1
