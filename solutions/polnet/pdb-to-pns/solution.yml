@@ -1,0 +1,81 @@
+album_api_version: 0.5.1
+args:
+- description: PDB ID for the Macromolecule to Model
+  name: pdb_id
+  required: true
+  type: string
+- description: Name of the Protein for the Associated PDB ID
+  name: protein_name
+  required: true
+  type: string
+- description: Folder Path for Where to Save the Downloaded PDB File
+  name: pdb_write_path
+  required: true
+  type: string
+- description: Folder Path for Where to Save the Converted PDB file to MRC
+  name: mrc_write_path
+  required: true
+  type: string
+- description: Folder Path for Where to Save the Converted MRC file for Polnet
+  name: polnet_write_path
+  required: true
+  type: string
+- default: 10
+  description: "Voxel size per \xC5ngstr\xF6m, scale of the tomogram resolution"
+  name: voxel_size
+  required: false
+  type: float
+- default: 30
+  description: "Tomogram resolution in \xC5ngstr\xF6ms."
+  name: resolution
+  required: false
+  type: float
+- default: 0
+  description: Isocontour
+  name: mmer_iso
+  required: false
+  type: float
+- default: 1.1
+  description: Flag to save segmentation scores.
+  name: pmer_l
+  required: false
+  type: float
+- default: 0.2
+  description: Flag to Save Inverted Segmentation Mask
+  name: pmer_occ
+  required: false
+  type: float
+- default: 0.05
+  description: Overlappoing Tolerance (Percentage)
+  name: pmer_over_tol
+  required: false
+  type: float
+- default: false
+  description: Indicate Protein Type
+  name: is_membrane
+  required: false
+  type: boolean
+- default: false
+  description: Reverse membrane normal (For Membrane-Bound Protein)
+  name: pmer_reverse_normals
+  required: false
+  type: boolean
+changelog: null
+cite:
+- text: Polnet team.
+  url: https://github.com/anmartinezs/polnet/tree/main
+description: This solution calls Membrane-Seg to Segment Membranes in Tomograms.
+group: polnet
+license: MIT
+name: pdb-to-pns
+solution_creators:
+- Jonathan Schwartz
+tags:
+- PDB
+- grid
+- surface
+- structural biology
+- pns
+timestamp: '2024-09-22T13:05:20.261998'
+title: Generate Polnet PNS file from PDB
+version: 0.1.0
