@@ -1,0 +1,45 @@
+album_api_version: 0.5.1
+args:
+- description: Path to the Copick configuration file.
+  name: copick_config_path
+  required: true
+  type: string
+- description: Voxel spacing to use for the segmentation.
+  name: voxel_spacing
+  required: true
+  type: float
+- description: User ID for input segmentations.
+  name: input_user_id
+  required: true
+  type: string
+- description: Session ID for input segmentations.
+  name: input_session_id
+  required: true
+  type: string
+- description: Name of the run to process.
+  name: run_name
+  required: true
+  type: string
+- description: User ID for the output multilabel segmentation.
+  name: output_user_id
+  required: true
+  type: string
+- description: Name for the new multilabel segmentation.
+  name: multilabel_name
+  required: true
+  type: string
+changelog: First version
+description: Creates a multilabel segmentation by combining individual segmentations
+  for all pickable objects, including particles, in a Copick project.
+group: copick
+license: MIT
+name: binary-to-multilabel-segmentation
+solution_creators:
+- Kyle Harrington
+tags:
+- copick
+- segmentation
+- multilabel
+timestamp: '2024-10-03T12:00:40.717044'
+title: Create Multilabel Segmentation from Individual Segmentations
+version: 0.0.1
