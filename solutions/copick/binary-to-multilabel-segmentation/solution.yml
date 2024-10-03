@@ -16,9 +16,9 @@ args:
   name: input_session_id
   required: true
   type: string
-- description: Name of the run to process.
+- description: Name of the run to process. If not provided, all runs will be processed.
   name: run_name
-  required: true
+  required: false
   type: string
 - description: User ID for the output multilabel segmentation.
   name: output_user_id
@@ -28,9 +28,10 @@ args:
   name: multilabel_name
   required: true
   type: string
-changelog: First version
+changelog: ''
 description: Creates a multilabel segmentation by combining individual segmentations
-  for all pickable objects, including particles, in a Copick project.
+  for all pickable objects, including particles, in a Copick project. Can process
+  a single run or all runs in the project.
 group: copick
 license: MIT
 name: binary-to-multilabel-segmentation
@@ -40,6 +41,6 @@ tags:
 - copick
 - segmentation
 - multilabel
-timestamp: '2024-10-03T12:00:40.717044'
+timestamp: '2024-10-03T12:07:40.246172'
 title: Create Multilabel Segmentation from Individual Segmentations
-version: 0.0.1
+version: 0.0.2
