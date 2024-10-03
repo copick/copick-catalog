@@ -77,6 +77,6 @@ tags:
 - surface
 - structural biology
 - pns
-timestamp: '2024-10-02T23:36:35.575072'
+timestamp: '2024-10-03T09:50:35.807781'
 title: Generate Polnet PNS file from PDB
-version: 0.2.0
+version: 0.3.0

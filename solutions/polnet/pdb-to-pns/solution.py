@@ -120,6 +120,7 @@ def run():
     # Fetch the PDB file and save it locally
     pdb_id = args.pdb_id
     pdb_write_path = args.pdb_write_path
+    os.makedirs(pdb_write_path, exist_ok=True)
     print(f'\n[Pdb Import Parameters]:\nPDB ID: {pdb_id}\nPDB download path: {pdb_write_path}')
     assembly_id = 1  # The first biological assembly
     url = f"https://files.rcsb.org/download/{pdb_id}-assembly{assembly_id}.cif"
@@ -166,7 +167,7 @@ def run():
 setup(
     group="polnet",
     name="pdb-to-pns",
-    version="0.2.0",
+    version="0.3.0",
     title="Generate Polnet PNS file from PDB",
     description="This solution downloads PDBs and uses Polnet to convert into MRCs, and simulation-compatible textfile.",
     solution_creators=["Jonathan Schwartz"],
