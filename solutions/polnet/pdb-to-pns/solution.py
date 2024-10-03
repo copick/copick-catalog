@@ -1,4 +1,4 @@
-###album catalog: czii
+###album catalog: copick
 
 from album.runner.api import get_args, setup
 
@@ -108,9 +108,10 @@ args = [
 
 def run():
     # Imports 
-    import biotite.database.rcsb as rcsb
     from gui.core.utilities import write_mmolecules, pdb_2_mrc
     from gui.core.vtk_utilities import select_isosurface
+    import biotite.database.rcsb as rcsb    
+    import urllib.request
     import os
 
     # Parse Arguments
@@ -120,8 +121,12 @@ def run():
     pdb_id = args.pdb_id
     pdb_write_path = args.pdb_write_path
     print(f'\n[Pdb Import Parameters]:\nPDB ID: {pdb_id}\nPDB download path: {pdb_write_path}')
-    pdb_path = rcsb.fetch(pdb_id, "pdb", pdb_write_path)
-    print(f"PDB file saved to: {pdb_path}")
+    assembly_id = 1  # The first biological assembly
+    url = f"https://files.rcsb.org/download/{pdb_id}-assembly{assembly_id}.cif"
+    pdb_path = f"{pdb_write_path}/{pdb_id}_assembly{assembly_id}.cif"
+
+    # Step 2: Download the biological assembly CIF file
+    urllib.request.urlretrieve(url, pdb_path)
 
     offset = 20
     het = True
@@ -161,9 +166,9 @@ def run():
 setup(
     group="polnet",
     name="pdb-to-pns",
-    version="0.1.0",
+    version="0.2.0",
     title="Generate Polnet PNS file from PDB",
-    description="This solution calls Membrane-Seg to Segment Membranes in Tomograms.",
+    description="This solution downloads PDBs and uses Polnet to convert into MRCs, and simulation-compatible textfile.",
     solution_creators=["Jonathan Schwartz"],
     cite=[{"text": "Polnet team.", "url": "https://github.com/anmartinezs/polnet/tree/main"}],
     tags=["PDB", "grid", "surface", "structural biology", "pns"],

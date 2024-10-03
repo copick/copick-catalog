@@ -64,7 +64,8 @@ changelog: null
 cite:
 - text: Polnet team.
   url: https://github.com/anmartinezs/polnet/tree/main
-description: This solution calls Membrane-Seg to Segment Membranes in Tomograms.
+description: This solution downloads PDBs and uses Polnet to convert into MRCs, and
+  simulation-compatible textfile.
 group: polnet
 license: MIT
 name: pdb-to-pns
@@ -76,6 +77,6 @@ tags:
 - surface
 - structural biology
 - pns
-timestamp: '2024-09-22T13:05:20.261998'
+timestamp: '2024-10-02T23:36:35.575072'
 title: Generate Polnet PNS file from PDB
-version: 0.1.0
+version: 0.2.0
