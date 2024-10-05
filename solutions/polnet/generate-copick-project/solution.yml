@@ -1,0 +1,65 @@
+album_api_version: 0.5.1
+args:
+- description: Path to the Copick configuration file
+  name: copick_config_path
+  required: true
+  type: string
+- default: 1
+  description: Number of Tomograms to Produce Per Specified SNR
+  name: num_tomos_per_snr
+  required: false
+  type: integer
+- default: '0.5'
+  description: Comma-separated list of SNRs to Apply to Tomograms
+  name: snr
+  required: false
+  type: string
+- default: -60,60,3
+  description: Comma-separated List of Min,Max and Increment for the Tilt Range
+  name: tilt_range
+  required: false
+  type: string
+- default: 630,630,200
+  description: Comma-separated List of Tomogram Dimensions (in Pixels)
+  name: tomo_shape
+  required: false
+  type: string
+- default: 10
+  description: Voxel Size for Simulated Tomograms
+  name: voxel_size
+  required: false
+  type: float
+- description: Comma-separated list of protein file paths
+  name: proteins_list
+  required: true
+  type: string
+- default: ''
+  description: Comma-separated list of membrane protein file paths
+  name: mb_proteins_list
+  required: false
+  type: string
+- default: ''
+  description: Comma-separated list of membrane file paths
+  name: membranes_list
+  required: false
+  type: string
+changelog: null
+cite:
+- text: Martinez-Sanchez A.*, Jasnin M., Phelippeau H. and Lamm L. Simulating the
+    cellular context in synthetic datasets for cryo-electron tomography, bioRxiv.
+  url: https://github.com/anmartinezs/polnet
+covers: []
+description: Generate a Copick Project Composed with polnet simulations.
+group: polnet
+license: MIT
+name: generate-copick-project
+solution_creators:
+- Jonathan Schwartz and Kyle Harrington
+tags:
+- synthetic data
+- deep learning
+- cryoet
+- tomogram
+timestamp: '2024-10-04T22:57:58.281763'
+title: Generate a Copick Project with polnet
+version: 0.1.0
