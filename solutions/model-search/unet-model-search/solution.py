@@ -24,6 +24,7 @@ dependencies:
   - einops
   - monai
   - optuna
+  - mlflow
   - pytorch-lightning
   - pip:
     - album
@@ -151,7 +152,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.3",
+    version="0.0.4",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using updated Monai transforms and Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],
