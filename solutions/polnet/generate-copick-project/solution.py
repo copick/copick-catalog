@@ -168,6 +168,7 @@ def run():
             add_points(copick_run, csvFile, USER_ID, SESSION_ID)
 
             vol = mrcfile.read (os.path.join(TEM_DIR, 'out_rec3d.mrc') )
+            import pdb; pdb.set_trace()
             write.tomogram(copick_run, vol, voxelSize = voxel_spacing)
 
             ground_truth = mrcfile.read( os.path.join(TOMOS_DIR, 'tomo_lbls_0.mrc'))
