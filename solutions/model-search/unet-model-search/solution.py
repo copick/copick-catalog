@@ -86,6 +86,10 @@ def run():
 
             for epoch in range(epochs):
                 model.train()
+                epoch_loss = 0
+                print(f"Epoch {epoch + 1}/{epochs}...")
+
+                # Training loop
                 for batch_data in train_loader:
                     inputs = batch_data["image"].to(device)
                     labels = batch_data["label"].to(device)
@@ -94,29 +98,38 @@ def run():
                     loss = loss_function(outputs, labels)
                     loss.backward()
                     optimizer.step()
+                    epoch_loss += loss.item()
 
+                print(f"Training loss for epoch {epoch + 1}: {epoch_loss:.4f}")
+                mlflow.log_metric(f"epoch_{epoch + 1}_loss", epoch_loss)
+
+                # Validation loop
                 model.eval()
                 dice_metric.reset()
+                val_loss = 0
                 with torch.no_grad():
                     for batch_data in val_loader:
                         val_inputs = batch_data["image"].to(device)
                         val_labels = batch_data["label"].to(device)
                         val_outputs = model(val_inputs)
+                        val_loss += loss_function(val_outputs, val_labels).item()
                         dice_metric(y_pred=val_outputs, y=val_labels)
 
                 metric = dice_metric.aggregate().item()
                 dice_metric.reset()
 
+                print(f"Validation Dice score for epoch {epoch + 1}: {metric:.4f}")
+                mlflow.log_metric(f"epoch_{epoch + 1}_val_dice", metric)
+                mlflow.log_metric(f"epoch_{epoch + 1}_val_loss", val_loss)
+
                 if metric > best_metric:
                     best_metric = metric
                     best_metric_epoch = epoch + 1
 
-                # Log metrics for each epoch
-                mlflow.log_metric("epoch", epoch)
-                mlflow.log_metric("val_dice", metric)
-
             mlflow.log_metric("best_val_dice", best_metric)
             mlflow.log_param("best_metric_epoch", best_metric_epoch)
+
+            print(f"Best validation Dice score: {best_metric:.4f} at epoch {best_metric_epoch}")
             
             return best_metric
 
@@ -195,7 +208,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.14",
+    version="0.0.15",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],

@@ -28,6 +28,9 @@ Update for monai transforms
 ## [0.0.2] - 2024-10-09
 Update dependencies
 
+## [0.0.15] - 2024-10-09
+Make more verbose during training
+
 ## [0.0.14] - 2024-10-09
 More conservative combination of channels
 
