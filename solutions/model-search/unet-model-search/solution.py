@@ -32,13 +32,14 @@ dependencies:
     - copick
 """
 
+
 def run():
     import os
     import torch
     import copick
     import numpy as np
     from tqdm import tqdm
-    from monai.data import DataLoader, Dataset, CacheDataset, decollate_batch
+    from monai.data import DataLoader, Dataset, CacheDataset
     from monai.transforms import (
         Compose,
         EnsureChannelFirstd,
@@ -46,87 +47,47 @@ def run():
         NormalizeIntensityd,
         RandRotate90d,
         RandFlipd,
-        RandCropByLabelClassesd,
-        AsDiscrete
+        RandCropByLabelClassesd
     )
+    import mlflow
+    import optuna
     from monai.networks.nets import UNet
     from monai.losses import TverskyLoss
     from monai.metrics import DiceMetric, ConfusionMatrixMetric
-    import mlflow
+    from monai.transforms import AsDiscrete
+    from monai.data import decollate_batch    
 
-    args = get_args()
-    copick_config_path = args.copick_config_path
-    voxel_spacing = float(args.voxel_spacing)
-    tomo_type = args.tomo_type
-    epochs = int(args.epochs)
-    random_seed = int(args.random_seed)
-    
-    np.random.seed(random_seed)
-    torch.manual_seed(random_seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(random_seed)
+    def objective(trial, train_loader, val_loader, device, random_seed, out_channels):
 
-    def load_data():
-        """Load the dataset and create training and validation sets."""
-        root = copick.from_file(copick_config_path)
-        data_dicts = []
-        for run in tqdm(root.runs[:2]):
-            tomogram = run.get_voxel_spacing(voxel_spacing).get_tomogram(tomo_type).numpy()
-            segmentation = run.get_segmentations(name='paintedPicks', user_id='user0', voxel_size=voxel_spacing, is_multilabel=True)[0].numpy()
-            membrane_seg = run.get_segmentations(name='membrane', user_id="data-portal")[0].numpy()
-            segmentation[membrane_seg == 1] = 1  
-            data_dicts.append({"image": tomogram, "label": segmentation})
-        return data_dicts[:len(data_dicts)//2], data_dicts[len(data_dicts)//2:]
 
-    # Non-random transforms to be cached
-    non_random_transforms = Compose([
-        EnsureChannelFirstd(keys=["image", "label"], channel_dim="no_channel"),
-        NormalizeIntensityd(keys="image"),
-        Orientationd(keys=["image", "label"], axcodes="RAS")
-    ])
+        torch.manual_seed(random_seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(random_seed)
 
-    # Random transforms to be applied during training
-    random_transforms = Compose([
-        RandCropByLabelClassesd(
-            keys=["image", "label"],
-            label_key="label",
-            spatial_size=[96, 96, 96],
-            num_classes=8,
-            num_samples=16
-        ),
-        RandRotate90d(keys=["image", "label"], prob=0.5, spatial_axes=[0, 2]),
-        RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=0),    
-    ])
+        # Suggest model parameters
+        spatial_dims = 3
+        in_channels = 1
+        channels = trial.suggest_categorical("channels", [(32, 64, 128), (48, 64, 80, 80)])
+        strides = trial.suggest_categorical("strides", [(2, 2, 1), (2, 2, 2)])
+        num_res_units = trial.suggest_int("num_res_units", 1, 3)
 
-    train_files, val_files = load_data()
-    train_ds = CacheDataset(data=train_files, transform=non_random_transforms, cache_rate=1.0)
-    train_ds = Dataset(data=train_ds, transform=random_transforms)
-    train_loader = DataLoader(train_ds, batch_size=1, shuffle=True, num_workers=4, pin_memory=torch.cuda.is_available())
-    
-    val_ds = CacheDataset(data=val_files, transform=non_random_transforms, cache_rate=1.0)
-    val_ds = Dataset(data=val_ds, transform=random_transforms)
-    val_loader = DataLoader(val_ds, batch_size=1, shuffle=False, num_workers=1, pin_memory=torch.cuda.is_available())
+        model = UNet(
+            spatial_dims=spatial_dims,
+            in_channels=in_channels,
+            out_channels=out_channels,  # Keep out_channels as a configurable parameter
+            channels=channels,
+            strides=strides,
+            num_res_units=num_res_units
+        ).to(device)
 
-    # Create model
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = UNet(
-        spatial_dims=3,
-        in_channels=1,
-        out_channels=9,  # 8 classes + background
-        channels=(48, 64, 80, 80),
-        strides=(2, 2, 1),
-        num_res_units=1
-    ).to(device)
-
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-    loss_function = TverskyLoss(include_background=True, to_onehot_y=True, softmax=True)
-    dice_metric = DiceMetric(include_background=False, reduction="mean", ignore_empty=True)
-    recall_metric = ConfusionMatrixMetric(include_background=False, metric_name="recall", reduction="None")
-
-    def train(train_loader, model, optimizer, loss_function, dice_metric, epochs):
+        optimizer = torch.optim.Adam(model.parameters(), lr=trial.suggest_loguniform("lr", 1e-4, 1e-2))
+        loss_function = TverskyLoss(include_background=True, to_onehot_y=True, softmax=True)
+        dice_metric = DiceMetric(include_background=False, reduction="mean", ignore_empty=True)
+        
+        # Train and validate for a few epochs
+        num_epochs = 10
         best_metric = -1
-        for epoch in range(epochs):
-            print(f"Epoch {epoch+1}/{epochs}")
+        for epoch in range(num_epochs):
             model.train()
             for batch_data in train_loader:
                 inputs = batch_data["image"].to(device)
@@ -137,32 +98,90 @@ def run():
                 loss.backward()
                 optimizer.step()
 
-            if (epoch + 1) % 2 == 0:
-                model.eval()
+            model.eval()
+            dice_metric.reset()
+            with torch.no_grad():
                 for val_data in val_loader:
                     val_inputs = val_data["image"].to(device)
                     val_labels = val_data["label"].to(device)
                     val_outputs = model(val_inputs)
-                    metric_val_outputs = [AsDiscrete(argmax=True, to_onehot=9)(i) for i in decollate_batch(val_outputs)]
-                    metric_val_labels = [AsDiscrete(to_onehot=9)(i) for i in decollate_batch(val_labels)]
-                    dice_metric(y_pred=metric_val_outputs, y=metric_val_labels)
-                metric = dice_metric.aggregate().item()
-                dice_metric.reset()
-                if metric > best_metric:
-                    best_metric = metric
-                    torch.save(model.state_dict(), "best_metric_model.pth")
-                print(f"Validation Dice: {metric:.4f}, Best: {best_metric:.4f}")
+                    val_outputs = [AsDiscrete(argmax=True, to_onehot=out_channels)(i) for i in decollate_batch(val_outputs)]
+                    val_labels = [AsDiscrete(to_onehot=out_channels)(i) for i in decollate_batch(val_labels)]
+                    dice_metric(y_pred=val_outputs, y=val_labels)
+
+            metric = dice_metric.aggregate().item()
+            dice_metric.reset()
+            if metric > best_metric:
+                best_metric = metric
+
+        return best_metric
+
+    args = get_args()
+    copick_config_path = args.copick_config_path
+    voxel_spacing = float(args.voxel_spacing)
+    tomo_type = args.tomo_type
+    epochs = int(args.epochs)
+    random_seed = int(args.random_seed)
+    out_channels = int(args.out_channels)
+
+    np.random.seed(random_seed)
+    torch.manual_seed(random_seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(random_seed)
+
+    def load_data():
+        root = copick.from_file(copick_config_path)
+        data_dicts = []
+        for run in tqdm(root.runs[:2]):
+            tomogram = run.get_voxel_spacing(10).get_tomogram('wbp').numpy().astype('float32')
+            segmentation = run.get_segmentations(name='paintedPicks', user_id='user0', voxel_size=10, is_multilabel=True)[0].numpy().astype('int64')
+            membrane_seg = run.get_segmentations(name='membrane', user_id="data-portal")[0].numpy().astype('int64')
+            segmentation[membrane_seg == 1] = 1
+            data_dicts.append({"image": tomogram, "label": segmentation})
+        return data_dicts[:len(data_dicts)//2], data_dicts[len(data_dicts)//2:]
+
+    non_random_transforms = Compose([
+        EnsureChannelFirstd(keys=["image", "label"], channel_dim="no_channel"),
+        NormalizeIntensityd(keys="image"),
+        Orientationd(keys=["image", "label"], axcodes="RAS")
+    ])
+
+    random_transforms = Compose([
+        RandCropByLabelClassesd(
+            keys=["image", "label"],
+            label_key="label",
+            spatial_size=[96, 96, 96],
+            num_classes=8,
+            num_samples=16
+        ),
+        RandRotate90d(keys=["image", "label"], prob=0.5, spatial_axes=[0, 2]),
+        RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=0),
+    ])
+
+    train_files, val_files = load_data()
+    train_ds = CacheDataset(data=train_files, transform=non_random_transforms, cache_rate=1.0)
+    train_ds = Dataset(data=train_ds, transform=random_transforms)
+    train_loader = DataLoader(train_ds, batch_size=1, shuffle=True, num_workers=4, pin_memory=torch.cuda.is_available())
+
+    val_ds = CacheDataset(data=val_files, transform=non_random_transforms, cache_rate=1.0)
+    val_ds = Dataset(data=val_ds, transform=random_transforms)
+    val_loader = DataLoader(val_ds, batch_size=1, shuffle=False, num_workers=1, pin_memory=torch.cuda.is_available())
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     mlflow.set_experiment('unet-model-search')
     with mlflow.start_run():
-        train(train_loader, model, optimizer, loss_function, dice_metric, epochs)
+        study = optuna.create_study(direction="maximize")
+        study.optimize(lambda trial: objective(trial, train_loader, val_loader, device, random_seed, out_channels), n_trials=10)
+        print(f"Best trial: {study.best_trial.value}")
+        print(f"Best params: {study.best_params}")
 
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.6",
+    version="0.0.7",
     title="UNet with Optuna optimization",
-    description="Optimization of UNet using updated Monai transforms and Copick data.",
+    description="Optimization of UNet using Optuna and updated Monai transforms with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],
     tags=["unet", "copick", "optuna", "segmentation"],
     license="MIT",
@@ -172,6 +191,7 @@ setup(
         {"name": "voxel_spacing", "type": "float", "required": True, "description": "Voxel spacing used to scale pick locations."},
         {"name": "tomo_type", "type": "string", "required": True, "description": "Tomogram type to use for each tomogram."},
         {"name": "epochs", "type": "integer", "required": True, "description": "Number of training epochs."},
+        {"name": "out_channels", "type": "integer", "required": True, "description": "Number of output channels for the UNet model."},
         {"name": "random_seed", "type": "integer", "required": False, "default": 17171, "description": "Random seed for reproducibility."}
     ],
     run=run,

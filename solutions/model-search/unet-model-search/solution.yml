@@ -16,13 +16,18 @@ args:
   name: epochs
   required: true
   type: integer
+- description: Number of output channels for the UNet model.
+  name: out_channels
+  required: true
+  type: integer
 - default: 17171
   description: Random seed for reproducibility.
   name: random_seed
   required: false
   type: integer
-changelog: Fix dep and num_samples
-description: Optimization of UNet using updated Monai transforms and Copick data.
+changelog: Dataloader types and readd optuna
+description: Optimization of UNet using Optuna and updated Monai transforms with Copick
+  data.
 group: model-search
 license: MIT
 name: unet-model-search
@@ -33,6 +38,6 @@ tags:
 - copick
 - optuna
 - segmentation
-timestamp: '2024-10-09T13:46:18.323268'
+timestamp: '2024-10-09T13:59:39.829953'
 title: UNet with Optuna optimization
-version: 0.0.6
+version: 0.0.7
