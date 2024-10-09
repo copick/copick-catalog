@@ -28,5 +28,8 @@ Update for monai transforms
 ## [0.0.2] - 2024-10-09
 Update dependencies
 
+## [0.0.10] - 2024-10-09
+Fix epoch arg and mlflow usage
+
 ## [0.0.1] - 2024-10-09
 Initial deploy

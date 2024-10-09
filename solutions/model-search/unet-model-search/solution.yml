@@ -33,7 +33,7 @@ args:
   name: random_seed
   required: false
   type: integer
-changelog: Early stopping and more model params
+changelog: Fix epoch arg and mlflow usage
 description: Optimization of UNet using Optuna with Copick data.
 group: model-search
 license: MIT
@@ -45,6 +45,6 @@ tags:
 - copick
 - optuna
 - segmentation
-timestamp: '2024-10-09T14:36:24.049564'
+timestamp: '2024-10-09T14:44:37.147023'
 title: UNet with Optuna optimization
-version: 0.0.9
+version: 0.0.10

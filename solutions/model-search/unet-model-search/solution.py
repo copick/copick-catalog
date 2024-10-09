@@ -57,7 +57,7 @@ def run():
     from monai.data import decollate_batch    
     from monai.handlers import EarlyStopping
 
-    def objective(trial, train_loader, val_loader, device, random_seed, out_channels):
+    def objective(trial, train_loader, val_loader, device, random_seed, out_channels, epochs):
         torch.manual_seed(random_seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(random_seed)
@@ -81,14 +81,11 @@ def run():
         loss_function = TverskyLoss(include_background=True, to_onehot_y=True, softmax=True)
         dice_metric = DiceMetric(include_background=False, reduction="mean", ignore_empty=True)
 
-        # Early stopping criterion
         early_stopping = EarlyStopping(patience=5, min_delta=1e-4, score_function=lambda val_metric: val_metric, trainer=None)
 
-        # Train and validate for a few epochs
-        num_epochs = 50
         best_metric = -1
         best_metric_epoch = -1
-        for epoch in range(num_epochs):
+        for epoch in range(epochs):  # Use the epochs argument here
             model.train()
             for batch_data in train_loader:
                 inputs = batch_data["image"].to(device)
@@ -113,7 +110,6 @@ def run():
             metric = dice_metric.aggregate().item()
             dice_metric.reset()
             
-            # Early stopping based on validation metric
             if early_stopping.step(metric):
                 print(f"Early stopping at epoch {epoch + 1}")
                 break
@@ -122,6 +118,13 @@ def run():
                 best_metric = metric
                 best_metric_epoch = epoch + 1
 
+            # Track the performance in MLflow for each epoch
+            mlflow.log_metric("epoch", epoch)
+            mlflow.log_metric("val_dice", metric)
+        
+        mlflow.log_metric("best_val_dice", best_metric)
+        mlflow.log_param("best_metric_epoch", best_metric_epoch)
+        
         return best_metric
 
     # TODO temporary for the cropping label errors
@@ -187,14 +190,19 @@ def run():
     mlflow.set_experiment('unet-model-search')
     with mlflow.start_run():
         study = optuna.create_study(direction="maximize")
-        study.optimize(lambda trial: objective(trial, train_loader, val_loader, device, random_seed, out_channels), n_trials=num_trials)
+        study.optimize(lambda trial: objective(trial, train_loader, val_loader, device, random_seed, out_channels, epochs), n_trials=num_trials)
+
         print(f"Best trial: {study.best_trial.value}")
         print(f"Best params: {study.best_params}")
+
+        # Log the best trial in MLflow
+        mlflow.log_metric("best_trial_value", study.best_trial.value)
+        mlflow.log_params(study.best_trial.params)
 
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.9",
+    version="0.0.10",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],
