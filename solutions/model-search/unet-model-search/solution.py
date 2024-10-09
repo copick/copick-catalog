@@ -144,7 +144,7 @@ def run():
         root = copick.from_file(copick_config_path)
         data_dicts = []
         for run in tqdm(root.runs[:2]):
-            tomogram = run.get_voxel_spacing(10).get_tomogram('wbp').numpy().astype('float32')
+            tomogram = run.get_voxel_spacing(voxel_spacing).get_tomogram('wbp').numpy().astype('float32')
             segmentation = run.get_segmentations(name='paintedPicks', user_id='user0', voxel_size=10, is_multilabel=True)[0].numpy().astype('int64')
             membrane_seg = run.get_segmentations(name='membrane', user_id="data-portal")[0].numpy().astype('int64')
             segmentation[membrane_seg == 1] = 1
@@ -195,7 +195,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.11",
+    version="0.0.12",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],

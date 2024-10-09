@@ -28,6 +28,9 @@ Update for monai transforms
 ## [0.0.2] - 2024-10-09
 Update dependencies
 
+## [0.0.12] - 2024-10-09
+fix usage of voxel spacing arg
+
 ## [0.0.11] - 2024-10-09
 Remove early stopping
 
