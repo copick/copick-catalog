@@ -119,7 +119,7 @@ def run():
     
     voxel_spacing = args.voxel_size
     NUM_TOMOS_PER_SNR = args.num_tomos_per_snr
-    DETECTOR_SNR = split_float_args(args.tilt_range)
+    DETECTOR_SNR = split_float_args(args.snr)
     minAng, maxAng, angIncr = split_float_args(args.tilt_range)
 
     # Generate a list of angles
