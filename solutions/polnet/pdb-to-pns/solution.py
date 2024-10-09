@@ -7,7 +7,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python>3.10
+  - python==3.10
   - pip
   - mrcfile
   - numpy
