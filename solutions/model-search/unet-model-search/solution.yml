@@ -21,9 +21,8 @@ args:
   name: random_seed
   required: false
   type: integer
-changelog: Update dependencies
-description: A solution that optimizes a 3D UNet model using Optuna, with data from
-  Copick.
+changelog: Update for monai transforms
+description: Optimization of UNet using updated Monai transforms and Copick data.
 group: model-search
 license: MIT
 name: unet-model-search
@@ -33,8 +32,7 @@ tags:
 - unet
 - copick
 - optuna
-- optimization
 - segmentation
-timestamp: '2024-10-09T09:01:47.470628'
-title: Optimize UNet with Optuna on Copick Data
-version: 0.0.2
+timestamp: '2024-10-09T09:27:26.868436'
+title: UNet with Optuna optimization
+version: 0.0.3
