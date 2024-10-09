@@ -28,6 +28,9 @@ Update for monai transforms
 ## [0.0.2] - 2024-10-09
 Update dependencies
 
+## [0.0.11] - 2024-10-09
+Remove early stopping
+
 ## [0.0.10] - 2024-10-09
 Fix epoch arg and mlflow usage
 
