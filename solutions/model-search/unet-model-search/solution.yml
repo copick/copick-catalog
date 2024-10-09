@@ -33,7 +33,7 @@ args:
   name: random_seed
   required: false
   type: integer
-changelog: Updated for more arguments and generalizing some hard coded values
+changelog: Early stopping and more model params
 description: Optimization of UNet using Optuna with Copick data.
 group: model-search
 license: MIT
@@ -45,6 +45,6 @@ tags:
 - copick
 - optuna
 - segmentation
-timestamp: '2024-10-09T14:16:22.003100'
+timestamp: '2024-10-09T14:36:24.049564'
 title: UNet with Optuna optimization
-version: 0.0.8
+version: 0.0.9

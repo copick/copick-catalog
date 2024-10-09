@@ -4,30 +4,30 @@ from album.runner.api import setup, get_args
 
 env_file = """
 channels:
-  - pytorch
-  - nvidia
-  - conda-forge
+- pytorch
+- nvidia
+- conda-forge
 dependencies:
-  - python=3.10
-  - pip
-  - zarr
-  - numpy<2
-  - pandas
-  - scikit-learn==1.3.2
-  - joblib
-  - h5py
-  - pytorch
-  - torchvision
-  - torchaudio
-  - cudatoolkit
-  - pytorch-cuda
-  - einops
-  - monai
-  - optuna
-  - mlflow
-  - nibabel
-  - pytorch-lightning
-  - pip:
+- python=3.10
+- pip
+- zarr
+- numpy<2
+- pandas
+- scikit-learn==1.3.2
+- joblib
+- h5py
+- pytorch
+- torchvision
+- torchaudio
+- cudatoolkit
+- pytorch-cuda
+- einops
+- monai
+- optuna
+- mlflow
+- nibabel
+- pytorch-lightning
+- pip:
     - album
     - copick
 """
@@ -55,17 +55,17 @@ def run():
     from monai.metrics import DiceMetric, ConfusionMatrixMetric
     from monai.transforms import AsDiscrete
     from monai.data import decollate_batch    
+    from monai.handlers import EarlyStopping
 
     def objective(trial, train_loader, val_loader, device, random_seed, out_channels):
         torch.manual_seed(random_seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(random_seed)
 
-        # Suggest model parameters
         spatial_dims = 3
         in_channels = 1
-        channels = trial.suggest_categorical("channels", [(32, 64, 128), (48, 64, 80, 80)])
-        strides = trial.suggest_categorical("strides", [(2, 2, 1), (2, 2, 2)])
+        channels = trial.suggest_categorical("channels", [(16, 32, 64), (32, 64, 128, 256), (64, 128, 256), (48, 64, 80, 80)])
+        strides = trial.suggest_categorical("strides", [(1, 2, 2), (2, 2, 2), (2, 2, 3)])
         num_res_units = trial.suggest_int("num_res_units", 1, 3)
 
         model = UNet(
@@ -81,9 +81,13 @@ def run():
         loss_function = TverskyLoss(include_background=True, to_onehot_y=True, softmax=True)
         dice_metric = DiceMetric(include_background=False, reduction="mean", ignore_empty=True)
 
+        # Early stopping criterion
+        early_stopping = EarlyStopping(patience=5, min_delta=1e-4, score_function=lambda val_metric: val_metric, trainer=None)
+
         # Train and validate for a few epochs
-        num_epochs = 10
+        num_epochs = 50
         best_metric = -1
+        best_metric_epoch = -1
         for epoch in range(num_epochs):
             model.train()
             for batch_data in train_loader:
@@ -108,10 +112,21 @@ def run():
 
             metric = dice_metric.aggregate().item()
             dice_metric.reset()
+            
+            # Early stopping based on validation metric
+            if early_stopping.step(metric):
+                print(f"Early stopping at epoch {epoch + 1}")
+                break
+            
             if metric > best_metric:
                 best_metric = metric
+                best_metric_epoch = epoch + 1
 
         return best_metric
+
+    # TODO temporary for the cropping label errors
+    import warnings
+    warnings.filterwarnings("ignore", category=UserWarning)
 
     args = get_args()
     copick_config_path = args.copick_config_path
@@ -179,7 +194,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.8",
+    version="0.0.9",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],
