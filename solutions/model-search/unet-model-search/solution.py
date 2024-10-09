@@ -42,7 +42,6 @@ def run():
     from monai.transforms import (
         Compose,
         EnsureChannelFirstd,
-        AsChannelFirstd,
         AsDiscrete,
         RandRotate90d,
         RandFlipd,
@@ -60,6 +59,7 @@ def run():
     from monai.metrics import DiceMetric, ConfusionMatrixMetric
     from monai.transforms import AsDiscrete
     from monai.data import decollate_batch    
+    import torch.nn.functional as F
 
     def compute_class_weights(train_loader, out_channels, device):
         class_counts = torch.zeros(out_channels).to(device)
@@ -131,9 +131,13 @@ def run():
                 for batch_data in train_loader:
                     inputs = batch_data["image"].to(device)
                     labels = batch_data["label"].to(device)
+                    
+                    # Manually apply one-hot encoding here
+                    labels_one_hot = F.one_hot(labels.long(), num_classes=out_channels).permute(0, 4, 1, 2, 3).float().to(device)
+
                     optimizer.zero_grad()
                     outputs = model(inputs)
-                    loss = loss_function(outputs, labels)
+                    loss = loss_function(outputs, labels_one_hot)
                     loss.backward()
                     optimizer.step()
                     epoch_loss += loss.item()
@@ -150,10 +154,14 @@ def run():
                     for batch_data in val_loader:
                         val_inputs = batch_data["image"].to(device)
                         val_labels = batch_data["label"].to(device)
+                        
+                        # Manually apply one-hot encoding in validation as well
+                        val_labels_one_hot = F.one_hot(val_labels.long(), num_classes=out_channels).permute(0, 4, 1, 2, 3).float().to(device)
+
                         val_outputs = model(val_inputs)
-                        val_loss += loss_function(val_outputs, val_labels).item()
-                        dice_metric(y_pred=val_outputs, y=val_labels)
-                        confusion_metric(y_pred=val_outputs, y=val_labels)
+                        val_loss += loss_function(val_outputs, val_labels_one_hot).item()
+                        dice_metric(y_pred=val_outputs, y=val_labels_one_hot)
+                        confusion_metric(y_pred=val_outputs, y=val_labels_one_hot)
 
                 metric = dice_metric.aggregate().item()
                 confusion_matrix = confusion_metric.aggregate()
@@ -217,10 +225,9 @@ def run():
 
     non_random_transforms = Compose([
         EnsureChannelFirstd(keys=["image"], channel_dim="no_channel"),
-        AsChannelFirstd(keys=["label"], channel_dim="no_channel"),  # Ensure label has a channel dimension
+        EnsureChannelFirstd(keys=["label"], channel_dim="no_channel"),
         NormalizeIntensityd(keys="image"),
-        Orientationd(keys=["image", "label"], axcodes="RAS"),
-        AsDiscrete(keys=["label"], to_onehot=num_classes + 1)  # One-hot encode labels
+        Orientationd(keys=["image", "label"], axcodes="RAS")
     ])
 
     random_transforms = Compose([
@@ -235,8 +242,7 @@ def run():
         RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=0),
         RandGaussianNoised(keys=["image"], prob=0.2),
         RandZoomd(keys=["image", "label"], prob=0.2, min_zoom=0.9, max_zoom=1.1),
-        RandShiftIntensityd(keys=["image"], offsets=0.1, prob=0.2),
-        AsDiscrete(keys=["label"], to_onehot=num_classes + 1)  # One-hot encode labels
+        RandShiftIntensityd(keys=["image"], offsets=0.1, prob=0.2)
     ])
 
     train_files, val_files = load_data()
@@ -265,7 +271,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.18",
+    version="0.0.19",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],

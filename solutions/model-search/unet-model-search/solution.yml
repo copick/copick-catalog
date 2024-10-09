@@ -33,7 +33,7 @@ args:
   name: random_seed
   required: false
   type: integer
-changelog: Swap to one-hot encoding
+changelog: manual one-hot encoding
 description: Optimization of UNet using Optuna with Copick data.
 group: model-search
 license: MIT
@@ -45,6 +45,6 @@ tags:
 - copick
 - optuna
 - segmentation
-timestamp: '2024-10-09T16:38:33.308623'
+timestamp: '2024-10-09T16:52:46.671943'
 title: UNet with Optuna optimization
-version: 0.0.18
+version: 0.0.19

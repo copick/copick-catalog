@@ -28,6 +28,9 @@ Update for monai transforms
 ## [0.0.2] - 2024-10-09
 Update dependencies
 
+## [0.0.19] - 2024-10-09
+manual one-hot encoding
+
 ## [0.0.18] - 2024-10-09
 Swap to one-hot encoding
 
