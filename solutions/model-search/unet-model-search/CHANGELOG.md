@@ -29,7 +29,7 @@ Update for monai transforms
 Update dependencies
 
 ## [0.0.15] - 2024-10-09
-Make more verbose during training
+More tranforms, weighted loss, per-class metrics, manual early stopping.
 
 ## [0.0.14] - 2024-10-09
 More conservative combination of channels
