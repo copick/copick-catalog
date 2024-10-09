@@ -33,7 +33,7 @@ args:
   name: random_seed
   required: false
   type: integer
-changelog: manual one-hot encoding
+changelog: Use diceceloss
 description: Optimization of UNet using Optuna with Copick data.
 group: model-search
 license: MIT
@@ -45,6 +45,6 @@ tags:
 - copick
 - optuna
 - segmentation
-timestamp: '2024-10-09T16:52:46.671943'
+timestamp: '2024-10-09T17:10:14.066803'
 title: UNet with Optuna optimization
-version: 0.0.19
+version: 0.0.20

@@ -42,41 +42,22 @@ def run():
     from monai.transforms import (
         Compose,
         EnsureChannelFirstd,
-        AsDiscrete,
+        Orientationd,
+        NormalizeIntensityd,
         RandRotate90d,
         RandFlipd,
         RandCropByLabelClassesd,
         RandGaussianNoised,
         RandShiftIntensityd,
-        RandZoomd,
-        NormalizeIntensityd,
-        Orientationd
+        RandZoomd
     )
     import mlflow
     import optuna
     from monai.networks.nets import UNet
-    from monai.losses import GeneralizedDiceFocalLoss
+    from monai.losses import DiceCELoss
     from monai.metrics import DiceMetric, ConfusionMatrixMetric
     from monai.transforms import AsDiscrete
     from monai.data import decollate_batch    
-    import torch.nn.functional as F
-
-    def compute_class_weights(train_loader, out_channels, device):
-        class_counts = torch.zeros(out_channels).to(device)
-
-        for batch_data in train_loader:
-            labels = batch_data["label"].to(device)
-            for c in range(out_channels):
-                class_counts[c] += (labels == c).sum().item()
-
-        # Invert the frequency to get the weights: more frequent classes get lower weights
-        total_count = class_counts.sum().item()
-        class_weights = total_count / (out_channels * class_counts)
-        
-        # Normalize the weights to sum to 1, or adjust according to your need
-        class_weights = class_weights / class_weights.sum()
-        
-        return class_weights
 
     def objective(trial, train_loader, val_loader, device, random_seed, out_channels, epochs):
         with mlflow.start_run(nested=True):
@@ -99,27 +80,17 @@ def run():
                 num_res_units=num_res_units
             ).to(device)
 
-            # Dynamically compute class weights from the data
-            class_weights = compute_class_weights(train_loader, out_channels, device)
+            # Class weights for imbalance (you can adjust these weights as necessary)
+            class_weights = torch.tensor([0.1] * (out_channels - 1) + [0.9]).to(device)
 
             optimizer = torch.optim.Adam(model.parameters(), lr=trial.suggest_loguniform("lr", 1e-5, 1e-2))
-            
-            # Use GeneralizedDiceFocalLoss
-            loss_function = GeneralizedDiceFocalLoss(
-                include_background=True,
-                softmax=True,
-                weight=class_weights,
-                lambda_gdl=1.0,
-                lambda_focal=1.0,
-                gamma=2.0
-            )
-            
+            loss_function = DiceCELoss(include_background=True, to_onehot_y=True, softmax=True, weight=class_weights)
             dice_metric = DiceMetric(include_background=False, reduction="mean", ignore_empty=True)
             confusion_metric = ConfusionMatrixMetric(include_background=False, reduction="mean")
 
             best_metric = -1
             best_metric_epoch = -1
-            early_stopping_patience = 5  # Stop if no improvement after 5 epochs
+            early_stopping_patience = 10  # Stop if no improvement after 10 epochs
             epochs_without_improvement = 0
 
             for epoch in range(epochs):
@@ -131,13 +102,9 @@ def run():
                 for batch_data in train_loader:
                     inputs = batch_data["image"].to(device)
                     labels = batch_data["label"].to(device)
-                    
-                    # Manually apply one-hot encoding here
-                    labels_one_hot = F.one_hot(labels.long(), num_classes=out_channels).permute(0, 4, 1, 2, 3).float().to(device)
-
                     optimizer.zero_grad()
                     outputs = model(inputs)
-                    loss = loss_function(outputs, labels_one_hot)
+                    loss = loss_function(outputs, labels)
                     loss.backward()
                     optimizer.step()
                     epoch_loss += loss.item()
@@ -154,14 +121,10 @@ def run():
                     for batch_data in val_loader:
                         val_inputs = batch_data["image"].to(device)
                         val_labels = batch_data["label"].to(device)
-                        
-                        # Manually apply one-hot encoding in validation as well
-                        val_labels_one_hot = F.one_hot(val_labels.long(), num_classes=out_channels).permute(0, 4, 1, 2, 3).float().to(device)
-
                         val_outputs = model(val_inputs)
-                        val_loss += loss_function(val_outputs, val_labels_one_hot).item()
-                        dice_metric(y_pred=val_outputs, y=val_labels_one_hot)
-                        confusion_metric(y_pred=val_outputs, y=val_labels_one_hot)
+                        val_loss += loss_function(val_outputs, val_labels).item()
+                        dice_metric(y_pred=val_outputs, y=val_labels)
+                        confusion_metric(y_pred=val_outputs, y=val_labels)
 
                 metric = dice_metric.aggregate().item()
                 confusion_matrix = confusion_metric.aggregate()
@@ -190,7 +153,6 @@ def run():
             print(f"Best validation Dice score: {best_metric:.4f} at epoch {best_metric_epoch}")
             
             return best_metric
-
 
     # TODO temporary for the cropping label errors
     import warnings
@@ -224,8 +186,7 @@ def run():
         return data_dicts[:len(data_dicts)//2], data_dicts[len(data_dicts)//2:]
 
     non_random_transforms = Compose([
-        EnsureChannelFirstd(keys=["image"], channel_dim="no_channel"),
-        EnsureChannelFirstd(keys=["label"], channel_dim="no_channel"),
+        EnsureChannelFirstd(keys=["image", "label"], channel_dim="no_channel"),
         NormalizeIntensityd(keys="image"),
         Orientationd(keys=["image", "label"], axcodes="RAS")
     ])
@@ -242,7 +203,7 @@ def run():
         RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=0),
         RandGaussianNoised(keys=["image"], prob=0.2),
         RandZoomd(keys=["image", "label"], prob=0.2, min_zoom=0.9, max_zoom=1.1),
-        RandShiftIntensityd(keys=["image"], offsets=0.1, prob=0.2)
+        RandShiftIntensityd(keys=["image"], offsets=0.1, prob=0.2),
     ])
 
     train_files, val_files = load_data()
@@ -271,7 +232,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.19",
+    version="0.0.20",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],
