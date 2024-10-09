@@ -25,6 +25,9 @@ Add missing mlflow dep
 ## [0.0.3] - 2024-10-09
 Update for monai transforms
 
+## [0.0.21] - 2024-10-09
+More augmentations
+
 ## [0.0.20] - 2024-10-09
 Use diceceloss
 

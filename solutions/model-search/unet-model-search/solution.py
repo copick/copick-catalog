@@ -211,7 +211,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.15",
+    version="0.0.21",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],
