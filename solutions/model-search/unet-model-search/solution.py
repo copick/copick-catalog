@@ -77,17 +77,24 @@ def run():
             data_dicts.append({"image": tomogram, "label": segmentation})
         return data_dicts[:len(data_dicts)//2], data_dicts[len(data_dicts)//2:]
 
-    # Set up transforms
+    # Non-random transforms to be cached
     non_random_transforms = Compose([
-        EnsureChannelFirstd(keys=["image", "label"]),
+        EnsureChannelFirstd(keys=["image", "label"], channel_dim="no_channel"),
         NormalizeIntensityd(keys="image"),
         Orientationd(keys=["image", "label"], axcodes="RAS")
     ])
-    
+
+    # Random transforms to be applied during training
     random_transforms = Compose([
-        RandCropByLabelClassesd(keys=["image", "label"], label_key="label", spatial_size=[96, 96, 96], num_classes=8, num_samples=16),
+        RandCropByLabelClassesd(
+            keys=["image", "label"],
+            label_key="label",
+            spatial_size=[96, 96, 96],
+            num_classes=8,
+            num_samples=my_num_samples
+        ),
         RandRotate90d(keys=["image", "label"], prob=0.5, spatial_axes=[0, 2]),
-        RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=0)
+        RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=0),    
     ])
 
     train_files, val_files = load_data()
@@ -152,7 +159,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.4",
+    version="0.0.5",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using updated Monai transforms and Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],
