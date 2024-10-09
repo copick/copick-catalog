@@ -4,18 +4,27 @@ from album.runner.api import setup, get_args
 
 env_file = """
 channels:
+  - pytorch
+  - nvidia
   - conda-forge
 dependencies:
   - python=3.10
   - pip
   - zarr
-  - numpy
+  - numpy<2
   - pandas
   - scikit-learn==1.3.2
   - joblib
   - h5py
-  - torch
+  - pytorch
+  - torchvision
+  - torchaudio
+  - cudatoolkit
+  - pytorch-cuda
+  - einops
+  - monai
   - optuna
+  - pytorch-lightning
   - pip:
     - album
     - copick
@@ -129,7 +138,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.1",
+    version="0.0.2",
     title="Optimize UNet with Optuna on Copick Data",
     description="A solution that optimizes a 3D UNet model using Optuna, with data from Copick.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],

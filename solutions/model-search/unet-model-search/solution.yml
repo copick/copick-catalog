@@ -21,7 +21,7 @@ args:
   name: random_seed
   required: false
   type: integer
-changelog: Initial deploy
+changelog: Update dependencies
 description: A solution that optimizes a 3D UNet model using Optuna, with data from
   Copick.
 group: model-search
@@ -35,6 +35,6 @@ tags:
 - optuna
 - optimization
 - segmentation
-timestamp: '2024-10-09T07:02:03.344350'
+timestamp: '2024-10-09T09:01:47.470628'
 title: Optimize UNet with Optuna on Copick Data
-version: 0.0.1
+version: 0.0.2
