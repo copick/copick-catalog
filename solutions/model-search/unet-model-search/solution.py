@@ -46,7 +46,9 @@ def run():
         NormalizeIntensityd,
         RandRotate90d,
         RandFlipd,
-        RandCropByLabelClassesd
+        RandCropByLabelClassesd,
+        RandAffined,
+        RandGaussianNoised
     )
     import mlflow
     import optuna
@@ -211,7 +213,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.21",
+    version="0.0.22",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],
