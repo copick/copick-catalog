@@ -32,7 +32,6 @@ dependencies:
     - copick
 """
 
-
 def run():
     import os
     import torch
@@ -58,8 +57,6 @@ def run():
     from monai.data import decollate_batch    
 
     def objective(trial, train_loader, val_loader, device, random_seed, out_channels):
-
-
         torch.manual_seed(random_seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(random_seed)
@@ -74,7 +71,7 @@ def run():
         model = UNet(
             spatial_dims=spatial_dims,
             in_channels=in_channels,
-            out_channels=out_channels,  # Keep out_channels as a configurable parameter
+            out_channels=out_channels,
             channels=channels,
             strides=strides,
             num_res_units=num_res_units
@@ -83,7 +80,7 @@ def run():
         optimizer = torch.optim.Adam(model.parameters(), lr=trial.suggest_loguniform("lr", 1e-4, 1e-2))
         loss_function = TverskyLoss(include_background=True, to_onehot_y=True, softmax=True)
         dice_metric = DiceMetric(include_background=False, reduction="mean", ignore_empty=True)
-        
+
         # Train and validate for a few epochs
         num_epochs = 10
         best_metric = -1
@@ -122,7 +119,10 @@ def run():
     tomo_type = args.tomo_type
     epochs = int(args.epochs)
     random_seed = int(args.random_seed)
-    out_channels = int(args.out_channels)
+    num_classes = int(args.num_classes)
+    out_channels = num_classes + 1  # Background class included
+    num_trials = int(args.num_trials)
+    batch_size = int(args.batch_size)
 
     np.random.seed(random_seed)
     torch.manual_seed(random_seed)
@@ -151,7 +151,7 @@ def run():
             keys=["image", "label"],
             label_key="label",
             spatial_size=[96, 96, 96],
-            num_classes=8,
+            num_classes=num_classes,  # Updated to use num_classes argument
             num_samples=16
         ),
         RandRotate90d(keys=["image", "label"], prob=0.5, spatial_axes=[0, 2]),
@@ -161,27 +161,27 @@ def run():
     train_files, val_files = load_data()
     train_ds = CacheDataset(data=train_files, transform=non_random_transforms, cache_rate=1.0)
     train_ds = Dataset(data=train_ds, transform=random_transforms)
-    train_loader = DataLoader(train_ds, batch_size=1, shuffle=True, num_workers=4, pin_memory=torch.cuda.is_available())
+    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=torch.cuda.is_available())
 
     val_ds = CacheDataset(data=val_files, transform=non_random_transforms, cache_rate=1.0)
     val_ds = Dataset(data=val_ds, transform=random_transforms)
-    val_loader = DataLoader(val_ds, batch_size=1, shuffle=False, num_workers=1, pin_memory=torch.cuda.is_available())
+    val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=1, pin_memory=torch.cuda.is_available())
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     mlflow.set_experiment('unet-model-search')
     with mlflow.start_run():
         study = optuna.create_study(direction="maximize")
-        study.optimize(lambda trial: objective(trial, train_loader, val_loader, device, random_seed, out_channels), n_trials=10)
+        study.optimize(lambda trial: objective(trial, train_loader, val_loader, device, random_seed, out_channels), n_trials=num_trials)
         print(f"Best trial: {study.best_trial.value}")
         print(f"Best params: {study.best_params}")
 
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.7",
+    version="0.0.8",
     title="UNet with Optuna optimization",
-    description="Optimization of UNet using Optuna and updated Monai transforms with Copick data.",
+    description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],
     tags=["unet", "copick", "optuna", "segmentation"],
     license="MIT",
@@ -191,7 +191,9 @@ setup(
         {"name": "voxel_spacing", "type": "float", "required": True, "description": "Voxel spacing used to scale pick locations."},
         {"name": "tomo_type", "type": "string", "required": True, "description": "Tomogram type to use for each tomogram."},
         {"name": "epochs", "type": "integer", "required": True, "description": "Number of training epochs."},
-        {"name": "out_channels", "type": "integer", "required": True, "description": "Number of output channels for the UNet model."},
+        {"name": "num_classes", "type": "integer", "required": True, "description": "Number of classes for segmentation, excluding the background class."},
+        {"name": "num_trials", "type": "integer", "required": True, "description": "Number of trials for Optuna optimization."},
+        {"name": "batch_size", "type": "integer", "required": True, "description": "Batch size for the DataLoader."},
         {"name": "random_seed", "type": "integer", "required": False, "default": 17171, "description": "Random seed for reproducibility."}
     ],
     run=run,

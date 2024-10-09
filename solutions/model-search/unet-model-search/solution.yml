@@ -16,8 +16,16 @@ args:
   name: epochs
   required: true
   type: integer
-- description: Number of output channels for the UNet model.
-  name: out_channels
+- description: Number of classes for segmentation, excluding the background class.
+  name: num_classes
+  required: true
+  type: integer
+- description: Number of trials for Optuna optimization.
+  name: num_trials
+  required: true
+  type: integer
+- description: Batch size for the DataLoader.
+  name: batch_size
   required: true
   type: integer
 - default: 17171
@@ -25,9 +33,8 @@ args:
   name: random_seed
   required: false
   type: integer
-changelog: Dataloader types and readd optuna
-description: Optimization of UNet using Optuna and updated Monai transforms with Copick
-  data.
+changelog: Updated for more arguments and generalizing some hard coded values
+description: Optimization of UNet using Optuna with Copick data.
 group: model-search
 license: MIT
 name: unet-model-search
@@ -38,6 +45,6 @@ tags:
 - copick
 - optuna
 - segmentation
-timestamp: '2024-10-09T13:59:39.829953'
+timestamp: '2024-10-09T14:16:22.003100'
 title: UNet with Optuna optimization
-version: 0.0.7
+version: 0.0.8
