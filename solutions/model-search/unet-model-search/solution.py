@@ -42,14 +42,16 @@ def run():
     from monai.transforms import (
         Compose,
         EnsureChannelFirstd,
-        Orientationd,
-        NormalizeIntensityd,
+        AsChannelFirstd,
+        AsDiscrete,
         RandRotate90d,
         RandFlipd,
         RandCropByLabelClassesd,
         RandGaussianNoised,
         RandShiftIntensityd,
-        RandZoomd
+        RandZoomd,
+        NormalizeIntensityd,
+        Orientationd
     )
     import mlflow
     import optuna
@@ -214,9 +216,11 @@ def run():
         return data_dicts[:len(data_dicts)//2], data_dicts[len(data_dicts)//2:]
 
     non_random_transforms = Compose([
-        EnsureChannelFirstd(keys=["image", "label"], channel_dim="no_channel"),
+        EnsureChannelFirstd(keys=["image"], channel_dim="no_channel"),
+        AsChannelFirstd(keys=["label"], channel_dim="no_channel"),  # Ensure label has a channel dimension
         NormalizeIntensityd(keys="image"),
-        Orientationd(keys=["image", "label"], axcodes="RAS")
+        Orientationd(keys=["image", "label"], axcodes="RAS"),
+        AsDiscrete(keys=["label"], to_onehot=num_classes + 1)  # One-hot encode labels
     ])
 
     random_transforms = Compose([
@@ -232,6 +236,7 @@ def run():
         RandGaussianNoised(keys=["image"], prob=0.2),
         RandZoomd(keys=["image", "label"], prob=0.2, min_zoom=0.9, max_zoom=1.1),
         RandShiftIntensityd(keys=["image"], offsets=0.1, prob=0.2),
+        AsDiscrete(keys=["label"], to_onehot=num_classes + 1)  # One-hot encode labels
     ])
 
     train_files, val_files = load_data()
@@ -260,7 +265,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.17",
+    version="0.0.18",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],

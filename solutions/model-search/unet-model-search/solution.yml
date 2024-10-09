@@ -33,7 +33,7 @@ args:
   name: random_seed
   required: false
   type: integer
-changelog: Switched to generalizeddicefocalloss and use class_weights properly
+changelog: Swap to one-hot encoding
 description: Optimization of UNet using Optuna with Copick data.
 group: model-search
 license: MIT
@@ -45,6 +45,6 @@ tags:
 - copick
 - optuna
 - segmentation
-timestamp: '2024-10-09T16:30:01.624990'
+timestamp: '2024-10-09T16:38:33.308623'
 title: UNet with Optuna optimization
-version: 0.0.17
+version: 0.0.18
