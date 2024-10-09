@@ -45,6 +45,6 @@ tags:
 - copick
 - optuna
 - segmentation
-timestamp: '2024-10-09T17:33:00.582389'
+timestamp: '2024-10-09T17:33:05.228409'
 title: UNet with Optuna optimization
 version: 0.0.15
