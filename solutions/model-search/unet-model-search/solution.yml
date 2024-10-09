@@ -21,7 +21,7 @@ args:
   name: random_seed
   required: false
   type: integer
-changelog: Update transform handling
+changelog: Fix dep and num_samples
 description: Optimization of UNet using updated Monai transforms and Copick data.
 group: model-search
 license: MIT
@@ -33,6 +33,6 @@ tags:
 - copick
 - optuna
 - segmentation
-timestamp: '2024-10-09T13:38:37.822865'
+timestamp: '2024-10-09T13:46:18.323268'
 title: UNet with Optuna optimization
-version: 0.0.5
+version: 0.0.6

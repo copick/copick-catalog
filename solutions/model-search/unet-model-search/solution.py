@@ -25,6 +25,7 @@ dependencies:
   - monai
   - optuna
   - mlflow
+  - nibabel
   - pytorch-lightning
   - pip:
     - album
@@ -91,7 +92,7 @@ def run():
             label_key="label",
             spatial_size=[96, 96, 96],
             num_classes=8,
-            num_samples=my_num_samples
+            num_samples=16
         ),
         RandRotate90d(keys=["image", "label"], prob=0.5, spatial_axes=[0, 2]),
         RandFlipd(keys=["image", "label"], prob=0.5, spatial_axis=0),    
@@ -159,7 +160,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.5",
+    version="0.0.6",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using updated Monai transforms and Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],
