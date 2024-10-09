@@ -1,0 +1,40 @@
+album_api_version: 0.5.1
+args:
+- description: Path to the Copick configuration JSON file.
+  name: copick_config_path
+  required: true
+  type: string
+- description: Voxel spacing used to scale pick locations.
+  name: voxel_spacing
+  required: true
+  type: float
+- description: Tomogram type to use for each tomogram.
+  name: tomo_type
+  required: true
+  type: string
+- description: Number of training epochs.
+  name: epochs
+  required: true
+  type: integer
+- default: 17171
+  description: Random seed for reproducibility.
+  name: random_seed
+  required: false
+  type: integer
+changelog: Initial deploy
+description: A solution that optimizes a 3D UNet model using Optuna, with data from
+  Copick.
+group: model-search
+license: MIT
+name: unet-model-search
+solution_creators:
+- Kyle Harrington and Zhuowen Zhao
+tags:
+- unet
+- copick
+- optuna
+- optimization
+- segmentation
+timestamp: '2024-10-09T07:02:03.344350'
+title: Optimize UNet with Optuna on Copick Data
+version: 0.0.1
