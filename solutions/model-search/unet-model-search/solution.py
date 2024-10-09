@@ -57,68 +57,68 @@ def run():
     from monai.data import decollate_batch    
 
     def objective(trial, train_loader, val_loader, device, random_seed, out_channels, epochs):
-        torch.manual_seed(random_seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(random_seed)
+        with mlflow.start_run(nested=True):
+            torch.manual_seed(random_seed)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed_all(random_seed)
 
-        spatial_dims = 3
-        in_channels = 1
-        channels = trial.suggest_categorical("channels", [(16, 32, 64), (32, 64, 128, 256), (64, 128, 256), (48, 64, 80, 80)])
-        strides = trial.suggest_categorical("strides", [(1, 2, 2), (2, 2, 2), (2, 2, 3)])
-        num_res_units = trial.suggest_int("num_res_units", 1, 3)
+            spatial_dims = 3
+            in_channels = 1
+            channels = trial.suggest_categorical("channels", [(16, 32, 64), (32, 64, 128, 256), (64, 128, 256), (48, 64, 80, 80)])
+            strides = trial.suggest_categorical("strides", [(1, 2, 2), (2, 2, 2), (2, 2, 3)])
+            num_res_units = trial.suggest_int("num_res_units", 1, 3)
 
-        model = UNet(
-            spatial_dims=spatial_dims,
-            in_channels=in_channels,
-            out_channels=out_channels,
-            channels=channels,
-            strides=strides,
-            num_res_units=num_res_units
-        ).to(device)
+            model = UNet(
+                spatial_dims=spatial_dims,
+                in_channels=in_channels,
+                out_channels=out_channels,
+                channels=channels,
+                strides=strides,
+                num_res_units=num_res_units
+            ).to(device)
 
-        optimizer = torch.optim.Adam(model.parameters(), lr=trial.suggest_loguniform("lr", 1e-4, 1e-2))
-        loss_function = TverskyLoss(include_background=True, to_onehot_y=True, softmax=True)
-        dice_metric = DiceMetric(include_background=False, reduction="mean", ignore_empty=True)
+            optimizer = torch.optim.Adam(model.parameters(), lr=trial.suggest_loguniform("lr", 1e-4, 1e-2))
+            loss_function = TverskyLoss(include_background=True, to_onehot_y=True, softmax=True)
+            dice_metric = DiceMetric(include_background=False, reduction="mean", ignore_empty=True)
 
-        best_metric = -1
-        best_metric_epoch = -1
+            best_metric = -1
+            best_metric_epoch = -1
 
-        for epoch in range(epochs):
-            model.train()
-            for batch_data in train_loader:
-                inputs = batch_data["image"].to(device)
-                labels = batch_data["label"].to(device)
-                optimizer.zero_grad()
-                outputs = model(inputs)
-                loss = loss_function(outputs, labels)
-                loss.backward()
-                optimizer.step()
+            for epoch in range(epochs):
+                model.train()
+                for batch_data in train_loader:
+                    inputs = batch_data["image"].to(device)
+                    labels = batch_data["label"].to(device)
+                    optimizer.zero_grad()
+                    outputs = model(inputs)
+                    loss = loss_function(outputs, labels)
+                    loss.backward()
+                    optimizer.step()
 
-            model.eval()
-            dice_metric.reset()
-            with torch.no_grad():
-                for batch_data in val_loader:
-                    val_inputs = batch_data["image"].to(device)
-                    val_labels = batch_data["label"].to(device)
-                    val_outputs = model(val_inputs)
-                    dice_metric(y_pred=val_outputs, y=val_labels)
+                model.eval()
+                dice_metric.reset()
+                with torch.no_grad():
+                    for batch_data in val_loader:
+                        val_inputs = batch_data["image"].to(device)
+                        val_labels = batch_data["label"].to(device)
+                        val_outputs = model(val_inputs)
+                        dice_metric(y_pred=val_outputs, y=val_labels)
+
+                metric = dice_metric.aggregate().item()
+                dice_metric.reset()
+
+                if metric > best_metric:
+                    best_metric = metric
+                    best_metric_epoch = epoch + 1
+
+                # Log metrics for each epoch
+                mlflow.log_metric("epoch", epoch)
+                mlflow.log_metric("val_dice", metric)
+
+            mlflow.log_metric("best_val_dice", best_metric)
+            mlflow.log_param("best_metric_epoch", best_metric_epoch)
             
-            metric = dice_metric.aggregate().item()
-            dice_metric.reset()
-
-            if metric > best_metric:
-                best_metric = metric
-                best_metric_epoch = epoch + 1
-
-            # Track the performance in MLflow for each epoch
-            mlflow.log_metric("epoch", epoch)
-            mlflow.log_metric("val_dice", metric)
-
-        mlflow.log_metric("best_val_dice", best_metric)
-        mlflow.log_param("best_metric_epoch", best_metric_epoch)
-        
-        return best_metric
-
+            return best_metric
 
     # TODO temporary for the cropping label errors
     import warnings
@@ -195,7 +195,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.12",
+    version="0.0.13",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],
