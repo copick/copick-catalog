@@ -64,7 +64,7 @@ def run():
 
             spatial_dims = 3
             in_channels = 1
-            channels = trial.suggest_categorical("channels", [(16, 32, 64), (32, 64, 128, 256), (64, 128, 256), (48, 64, 80, 80)])
+            channels = trial.suggest_categorical("channels", [(8, 16, 32), (16, 32, 64), (8, 16, 32, 64)])
             strides = trial.suggest_categorical("strides", [(1, 2, 2), (2, 2, 2), (2, 2, 3)])
             num_res_units = trial.suggest_int("num_res_units", 1, 3)
 
@@ -195,7 +195,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.13",
+    version="0.0.14",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],

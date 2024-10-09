@@ -28,6 +28,9 @@ Update for monai transforms
 ## [0.0.2] - 2024-10-09
 Update dependencies
 
+## [0.0.14] - 2024-10-09
+More conservative combination of channels
+
 ## [0.0.13] - 2024-10-09
 Use nested mlflow runs
 
