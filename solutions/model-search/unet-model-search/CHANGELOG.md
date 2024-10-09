@@ -28,6 +28,9 @@ Update for monai transforms
 ## [0.0.2] - 2024-10-09
 Update dependencies
 
+## [0.0.16] - 2024-10-09
+More transforms, weighted loss, per class metrics, manual early stopping,
+
 ## [0.0.15] - 2024-10-09
 More tranforms, weighted loss, per-class metrics, manual early stopping.
 
