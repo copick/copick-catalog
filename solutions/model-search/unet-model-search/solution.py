@@ -54,10 +54,27 @@ def run():
     import mlflow
     import optuna
     from monai.networks.nets import UNet
-    from monai.losses import TverskyLoss
+    from monai.losses import GeneralizedDiceFocalLoss
     from monai.metrics import DiceMetric, ConfusionMatrixMetric
     from monai.transforms import AsDiscrete
     from monai.data import decollate_batch    
+
+    def compute_class_weights(train_loader, out_channels, device):
+        class_counts = torch.zeros(out_channels).to(device)
+
+        for batch_data in train_loader:
+            labels = batch_data["label"].to(device)
+            for c in range(out_channels):
+                class_counts[c] += (labels == c).sum().item()
+
+        # Invert the frequency to get the weights: more frequent classes get lower weights
+        total_count = class_counts.sum().item()
+        class_weights = total_count / (out_channels * class_counts)
+        
+        # Normalize the weights to sum to 1, or adjust according to your need
+        class_weights = class_weights / class_weights.sum()
+        
+        return class_weights
 
     def objective(trial, train_loader, val_loader, device, random_seed, out_channels, epochs):
         with mlflow.start_run(nested=True):
@@ -80,17 +97,27 @@ def run():
                 num_res_units=num_res_units
             ).to(device)
 
-            # Class weights for imbalance (you can adjust these weights as necessary)
-            class_weights = torch.tensor([0.1] * (out_channels - 1) + [0.9]).to(device)
+            # Dynamically compute class weights from the data
+            class_weights = compute_class_weights(train_loader, out_channels, device)
 
             optimizer = torch.optim.Adam(model.parameters(), lr=trial.suggest_loguniform("lr", 1e-5, 1e-2))
-            loss_function = TverskyLoss(include_background=True, to_onehot_y=True, softmax=True, weight=class_weights)
+            
+            # Use GeneralizedDiceFocalLoss
+            loss_function = GeneralizedDiceFocalLoss(
+                include_background=True,
+                softmax=True,
+                weight=class_weights,
+                lambda_gdl=1.0,
+                lambda_focal=1.0,
+                gamma=2.0
+            )
+            
             dice_metric = DiceMetric(include_background=False, reduction="mean", ignore_empty=True)
             confusion_metric = ConfusionMatrixMetric(include_background=False, reduction="mean")
 
             best_metric = -1
             best_metric_epoch = -1
-            early_stopping_patience = 10  # Stop if no improvement after 10 epochs
+            early_stopping_patience = 5  # Stop if no improvement after 5 epochs
             epochs_without_improvement = 0
 
             for epoch in range(epochs):
@@ -153,6 +180,7 @@ def run():
             print(f"Best validation Dice score: {best_metric:.4f} at epoch {best_metric_epoch}")
             
             return best_metric
+
 
     # TODO temporary for the cropping label errors
     import warnings
@@ -232,7 +260,7 @@ def run():
 setup(
     group="model-search",
     name="unet-model-search",
-    version="0.0.16",
+    version="0.0.17",
     title="UNet with Optuna optimization",
     description="Optimization of UNet using Optuna with Copick data.",
     solution_creators=["Kyle Harrington and Zhuowen Zhao"],

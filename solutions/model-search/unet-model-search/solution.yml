@@ -33,7 +33,7 @@ args:
   name: random_seed
   required: false
   type: integer
-changelog: More transforms, weighted loss, per class metrics, manual early stopping,
+changelog: Switched to generalizeddicefocalloss and use class_weights properly
 description: Optimization of UNet using Optuna with Copick data.
 group: model-search
 license: MIT
@@ -45,6 +45,6 @@ tags:
 - copick
 - optuna
 - segmentation
-timestamp: '2024-10-09T16:13:33.652552'
+timestamp: '2024-10-09T16:30:01.624990'
 title: UNet with Optuna optimization
-version: 0.0.16
+version: 0.0.17
