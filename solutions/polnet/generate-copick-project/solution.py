@@ -176,7 +176,9 @@ def run():
             membranes = extract_membrane_segmentation(ground_truth, csvFile, pickable_objects)
             write.segmentation(copick_run, membranes, USER_ID, 
                                name='membrane', voxel_size=voxel_spacing, 
-                               multilabel = False)            
+                               multilabel = False)        
+
+            currTSind += 1    
 
 setup(
     group="polnet",
