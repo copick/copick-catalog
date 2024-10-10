@@ -120,7 +120,6 @@ def run():
     voxel_spacing = args.voxel_size
     NUM_TOMOS_PER_SNR = args.num_tomos_per_snr
     DETECTOR_SNR = split_float_args(args.snr)
-    print(args.tilt_range)
     minAng, maxAng, angIncr = split_float_args(args.tilt_range)
 
     # Generate a list of angles
@@ -168,8 +167,7 @@ def run():
             add_points(copick_run, csvFile, USER_ID, SESSION_ID)
 
             vol = mrcfile.read (os.path.join(TEM_DIR, 'out_rec3d.mrc') )
-            import pdb; pdb.set_trace()
-            write.tomogram(copick_run, vol, voxelSize = voxel_spacing)
+            write.tomogram(copick_run, vol, voxel_size = voxel_spacing)
 
             ground_truth = mrcfile.read( os.path.join(TOMOS_DIR, 'tomo_lbls_0.mrc'))
             # write.segmentation(copick_run, ground_truth, USER_ID, voxelSize=voxel_spacing)                         
@@ -177,8 +175,8 @@ def run():
             # Extract Membranes and Save as Binary Segmentation
             membranes = extract_membrane_segmentation(ground_truth, csvFile, pickable_objects)
             write.segmentation(copick_run, membranes, USER_ID, 
-                            segmentationName='membrane', voxelSize=voxel_spacing, 
-                            multilabel_seg = False)            
+                               name='membrane', voxel_size=voxel_spacing, 
+                               multilabel = False)            
 
 setup(
     group="polnet",
