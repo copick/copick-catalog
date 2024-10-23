@@ -41,7 +41,6 @@ def run():
 
     def extract_features_from_model(chunk_tensor, model):
         """Extract features from a given 3D chunk using the pretrained model."""
-        # Convert 3D tensor to 2D slices (DINOv2 handles 2D images)
         depth = chunk_tensor.shape[2]
         slices = [chunk_tensor[:, :, i].unsqueeze(0) for i in range(depth)]
 
@@ -68,8 +67,8 @@ def run():
         stacked_features = torch.stack(features, dim=2)  # Shape: (batch_size, num_features, depth, height, width)
         
         # Check the number of output features from the model
-        if stacked_features.shape[1] != 768:
-            raise ValueError(f"Expected 768 features from DINOv2, but got {stacked_features.shape[1]} features.")
+        if stacked_features.shape[1] != 384:
+            raise ValueError(f"Expected 384 features from DINOv2, but got {stacked_features.shape[1]} features.")
         
         return stacked_features.squeeze(0)  # Removing batch dimension
 
@@ -126,7 +125,7 @@ def run():
     feature_store = copick_features.zarr()
 
     # Create the Zarr array for features
-    num_features = 768  # DINOv2 typically produces 768-dimensional features
+    num_features = 384  # DINOv2_vits14 produces 384-dimensional features
     out_array = zarr.create(
         shape=(num_features, *image.shape),
         chunks=(num_features, *chunk_size),
@@ -165,7 +164,7 @@ def run():
 setup(
     group="copick",
     name="generate-dino-features",
-    version="0.0.4",
+    version="0.0.5",
     title="Generate DINOv2 Features from a Copick Run",
     description="Extract multiscale features from a tomogram using DINOv2 (ViT) and save them using Copick's API.",
     solution_creators=["Kyle Harrington"],
