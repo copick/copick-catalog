@@ -20,7 +20,7 @@ args:
   name: feature_type
   required: true
   type: string
-changelog: ''
+changelog: Update feature handling
 description: Extract multiscale features from a tomogram using DINOv2 (ViT) and save
   them using Copick's API.
 group: copick
@@ -34,6 +34,6 @@ tags:
 - image processing
 - cryoet
 - tomogram
-timestamp: '2024-10-22T21:40:18.366549'
+timestamp: '2024-10-22T21:40:33.907478'
 title: Generate DINOv2 Features from a Copick Run
-version: 0.0.3
+version: 0.0.4

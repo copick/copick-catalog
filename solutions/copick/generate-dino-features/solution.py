@@ -165,7 +165,7 @@ def run():
 setup(
     group="copick",
     name="generate-dino-features",
-    version="0.0.3",
+    version="0.0.4",
     title="Generate DINOv2 Features from a Copick Run",
     description="Extract multiscale features from a tomogram using DINOv2 (ViT) and save them using Copick's API.",
     solution_creators=["Kyle Harrington"],
