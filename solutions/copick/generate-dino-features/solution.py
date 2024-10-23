@@ -42,9 +42,9 @@ def run():
     def extract_features_from_model(chunk_tensor, model):
         """Extract features from a given 3D chunk using the pretrained model."""
         # Convert 3D tensor to 2D slices (DINOv2 handles 2D images)
-        slices = [chunk_tensor[:, :, i].unsqueeze(0) for i in range(chunk_tensor.shape[2])]
+        depth = chunk_tensor.shape[2]
+        slices = [chunk_tensor[:, :, i].unsqueeze(0) for i in range(depth)]
 
-        # Apply model to each 2D slice
         features = []
         for slice in slices:
             # Replicate the single channel to three channels
@@ -65,7 +65,13 @@ def run():
                 features.append(feature)
 
         # Stack features along the depth axis
-        return torch.stack(features, dim=2).squeeze(0)  # Concatenating features along the depth axis
+        stacked_features = torch.stack(features, dim=2)  # Shape: (batch_size, num_features, depth, height, width)
+        
+        # Check the number of output features from the model
+        if stacked_features.shape[1] != 768:
+            raise ValueError(f"Expected 768 features from DINOv2, but got {stacked_features.shape[1]} features.")
+        
+        return stacked_features.squeeze(0)  # Removing batch dimension
 
     # Fetch arguments
     args = get_args()
