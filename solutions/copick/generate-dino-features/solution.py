@@ -22,7 +22,6 @@ dependencies:
   - pip:
     - album
     - copick
-    - dinov2
 """
 
 def run():
@@ -33,12 +32,11 @@ def run():
     from torchvision import models, transforms
     from numcodecs import Blosc
     import os
-    from dinov2 import models as dinov2_models
 
     def load_dinov2_model():
-        """Load a pretrained DINOv2 model (using ResNet or ViT)"""
-        model = dinov2_models.dino_vits16(pretrained=True)  # DINOv2 with a ViT-S/16 backbone
-        model.eval()
+        """Load a smaller pretrained DINOv2 model (ViT-S/14)"""
+        model = torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14')
+        model.eval()  # Set the model to evaluation mode
         return model
 
     def extract_features_from_model(chunk_tensor, model):
@@ -153,7 +151,7 @@ def run():
 setup(
     group="copick",
     name="generate-dino-features",
-    version="0.0.1",
+    version="0.0.2",
     title="Generate DINOv2 Features from a Copick Run",
     description="Extract multiscale features from a tomogram using DINOv2 (ViT) and save them using Copick's API.",
     solution_creators=["Kyle Harrington"],
