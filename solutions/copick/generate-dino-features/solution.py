@@ -47,11 +47,19 @@ def run():
         # Apply model to each 2D slice
         features = []
         for slice in slices:
-            transformed_slice = transforms.Resize((224, 224))(slice)  # Resize to 224x224, the input size for DINOv2
+            # Replicate the single channel to three channels
+            slice_3ch = slice.repeat(3, 1, 1)  # Replicate grayscale to RGB (3-channel)
+
+            # Resize to 224x224, the input size for DINOv2
+            transformed_slice = transforms.Resize((224, 224))(slice_3ch)
+
+            # Normalize using the ImageNet mean and standard deviation
             transformed_slice = transforms.Normalize(mean=[0.485, 0.456, 0.406], 
-                                                     std=[0.229, 0.224, 0.225])(transformed_slice)
+                                                    std=[0.229, 0.224, 0.225])(transformed_slice)
+            
             transformed_slice = transformed_slice.unsqueeze(0).to(chunk_tensor.device)  # Add batch dimension
 
+            # Extract features using the model
             with torch.no_grad():
                 feature = model(transformed_slice)
                 features.append(feature)
@@ -151,7 +159,7 @@ def run():
 setup(
     group="copick",
     name="generate-dino-features",
-    version="0.0.2",
+    version="0.0.3",
     title="Generate DINOv2 Features from a Copick Run",
     description="Extract multiscale features from a tomogram using DINOv2 (ViT) and save them using Copick's API.",
     solution_creators=["Kyle Harrington"],
