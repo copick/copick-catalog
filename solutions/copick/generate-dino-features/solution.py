@@ -29,9 +29,11 @@ def run():
     import numpy as np
     import copick
     import zarr
-    from torchvision import models, transforms
+    from torchvision import transforms
     from numcodecs import Blosc
     import os
+    import itertools
+    from tqdm import tqdm
 
     def load_dinov2_model():
         """Load a smaller pretrained DINOv2 model (ViT-S/14)"""
@@ -39,38 +41,37 @@ def run():
         model.eval()  # Set the model to evaluation mode
         return model
 
-    def extract_features_from_model(chunk_tensor, model):
-        """Extract features from a given 3D chunk using the pretrained model."""
-        depth = chunk_tensor.shape[2]
-        slices = [chunk_tensor[:, :, i].unsqueeze(0) for i in range(depth)]
+    def extract_features_from_model_batch(slice_batch, model):
+        """Extract features from a batch of 2D slices using the pretrained model."""
+        # Ensure all slices are 2D and replicate to 3 channels (RGB)
+        for i in range(len(slice_batch)):
+            if slice_batch[i].ndim == 2:  # If the slice is 2D, add a channel dimension
+                slice_batch[i] = slice_batch[i].unsqueeze(0)  # Shape: (1, height, width)
 
-        features = []
-        for slice in slices:
-            # Replicate the single channel to three channels
-            slice_3ch = slice.repeat(3, 1, 1)  # Replicate grayscale to RGB (3-channel)
+        # Stack the batch into a single tensor
+        slice_batch = torch.stack(slice_batch)
 
-            # Resize to 224x224, the input size for DINOv2
-            transformed_slice = transforms.Resize((224, 224))(slice_3ch)
+        # Replicate the grayscale slices to 3 channels (RGB)
+        batch_3ch = slice_batch.repeat(1, 3, 1, 1)  # Shape: (batch_size, 3, height, width)
 
-            # Normalize using the ImageNet mean and standard deviation
-            transformed_slice = transforms.Normalize(mean=[0.485, 0.456, 0.406], 
-                                                    std=[0.229, 0.224, 0.225])(transformed_slice)
-            
-            transformed_slice = transformed_slice.unsqueeze(0).to(chunk_tensor.device)  # Add batch dimension
-
-            # Extract features using the model
-            with torch.no_grad():
-                feature = model(transformed_slice)
-                features.append(feature)
-
-        # Stack features along the depth axis
-        stacked_features = torch.stack(features, dim=2)  # Shape: (batch_size, num_features, depth, height, width)
+        # Resize and normalize the batch
+        transform = transforms.Compose([
+            transforms.Resize((224, 224)),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], 
+                                 std=[0.229, 0.224, 0.225])
+        ])
         
-        # Check the number of output features from the model
-        if stacked_features.shape[1] != 384:
-            raise ValueError(f"Expected 384 features from DINOv2, but got {stacked_features.shape[1]} features.")
-        
-        return stacked_features.squeeze(0)  # Removing batch dimension
+        # Apply transformation
+        batch_transformed = torch.stack([transform(slice_3ch) for slice_3ch in batch_3ch])
+
+        # Move the batch to the GPU
+        batch_transformed = batch_transformed.to(slice_batch.device)
+
+        # Extract features in batch
+        with torch.no_grad():
+            features = model(batch_transformed)  # Shape: (batch_size, 384)
+
+        return features  # Shape: (batch_size, 384)
 
     # Fetch arguments
     args = get_args()
@@ -79,13 +80,13 @@ def run():
     voxel_spacing = args.voxel_spacing
     tomo_type = args.tomo_type
     feature_type = args.feature_type
+    batch_size = args.batch_size
+    stride_x = args.stride_x
+    stride_y = args.stride_y
+    stride_z = args.stride_z
 
     # Load Copick configuration
-    print(f"Loading Copick root configuration from: {copick_config_path}")
     root = copick.from_file(copick_config_path)
-    print("Copick root loaded successfully")
-
-    # Get run and voxel spacing
     run = root.get_run(run_name)
     if run is None:
         raise ValueError(f"Run with name '{run_name}' not found.")
@@ -94,77 +95,117 @@ def run():
     if voxel_spacing_obj is None:
         raise ValueError(f"Voxel spacing '{voxel_spacing}' not found in run '{run_name}'.")
 
-    # Get tomogram
     tomogram = voxel_spacing_obj.get_tomogram(tomo_type)
     if tomogram is None:
         raise ValueError(f"Tomogram type '{tomo_type}' not found for voxel spacing '{voxel_spacing}'.")
 
     # Open highest resolution
     image = zarr.open(tomogram.zarr(), mode='r')['0']
+    image = image[:]  # Load image fully into memory
 
-    # Determine chunk size from input Zarr
-    input_chunk_size = image.chunks
-    chunk_size = input_chunk_size if len(input_chunk_size) == 3 else input_chunk_size[1:]
-
-    print(f"Processing image from run {run_name} with shape {image.shape} at voxel spacing {voxel_spacing}")
-    print(f"Using chunk size: {chunk_size}")
+    # Set the patch size for 224x224 patches
+    patch_size = 224
 
     # Determine device
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
-    print(f"Using device: {device}")
-
-    # Load pretrained DINOv2 model
+    print(f"Using device {device}")
     model = load_dinov2_model()
     model.to(device)
 
     # Prepare output Zarr array directly in the tomogram store
-    print(f"Creating new feature store...")
     copick_features = tomogram.get_features(feature_type)
     if not copick_features:
         copick_features = tomogram.new_features(feature_type)
     feature_store = copick_features.zarr()
 
-    # Create the Zarr array for features
+    # Create the Zarr array for features (3D spatial dimensions + 384 embedding vector)
     num_features = 384  # DINOv2_vits14 produces 384-dimensional features
     out_array = zarr.create(
         shape=(num_features, *image.shape),
-        chunks=(num_features, *chunk_size),
+        chunks=(num_features, 32, 32, 32),  # Chunk size set to (32, 32, 32)
         dtype='float32',
         compressor=Blosc(cname='zstd', clevel=3, shuffle=2),
         store=feature_store,
         overwrite=True
     )
 
-    # Process each chunk
-    for z in range(0, image.shape[0], chunk_size[0]):
-        for y in range(0, image.shape[1], chunk_size[1]):
-            for x in range(0, image.shape[2], chunk_size[2]):
-                z_start = max(z, 0)
-                z_end = min(z + chunk_size[0], image.shape[0])
-                y_start = max(y, 0)
-                y_end = min(y + chunk_size[1], image.shape[1])
-                x_start = max(x, 0)
-                x_end = min(x + chunk_size[2], image.shape[2])
+    # Calculate total number of batches
+    total_voxels_z = (image.shape[0] + stride_z - 1) // stride_z
+    total_voxels_y = (image.shape[1] + stride_y - 1) // stride_y
+    total_voxels_x = (image.shape[2] + stride_x - 1) // stride_x
+    total_voxels = total_voxels_z * total_voxels_y * total_voxels_x
 
-                print(f"Processing {z_start}:{z_end}, {y_start}:{y_end}, {x_start}:{x_end}")
+    total_batches = (total_voxels + batch_size - 1) // batch_size  # Total batches now correctly calculated
 
-                chunk = image[z_start:z_end, y_start:y_end, x_start:x_end]
+    # Initialize an empty batch
+    slice_batch = []
+    voxel_indices = []
+    batch_count = 0
 
-                # Convert to PyTorch tensor and move to device
-                chunk_tensor = torch.tensor(chunk, dtype=torch.float32, device=device)
+    print(f"Processing image of size {image.shape}")
 
-                # Extract features using DINOv2
-                chunk_features = extract_features_from_model(chunk_tensor, model)
+    # Loop over each voxel in x, y, z with tqdm progress bar
+    voxel_iterator = itertools.product(range(0, image.shape[0], stride_z),
+                                       range(0, image.shape[1], stride_y),
+                                       range(0, image.shape[2], stride_x))
 
-                # Store features
-                out_array[:, z:z + chunk_size[0], y:y + chunk_size[1], x:x + chunk_size[2]] = chunk_features.cpu().numpy()
+    with tqdm(total=total_batches, desc="Batches Processed") as pbar:
+        for z, y, x in voxel_iterator:
+            # Extract a 224x224 patch centered around the voxel
+            z_start = max(z - 112, 0)
+            z_end = min(z + 112, image.shape[0])
+            y_start = max(y - 112, 0)
+            y_end = min(y + 112, image.shape[1])
+            x_start = max(x - 112, 0)
+            x_end = min(x + 112, image.shape[2])
 
+            slice_tensor = torch.tensor(image[z, y_start:y_end, x_start:x_end], dtype=torch.float32, device=device).unsqueeze(0)
+
+            # Pad the slice if it is smaller than 224x224
+            if slice_tensor.shape[1] != patch_size or slice_tensor.shape[2] != patch_size:
+                pad_y = patch_size - slice_tensor.shape[1]
+                pad_x = patch_size - slice_tensor.shape[2]
+                slice_tensor = torch.nn.functional.pad(slice_tensor, (0, pad_x, 0, pad_y))
+
+            # Accumulate slice in the batch
+            slice_batch.append(slice_tensor)
+            voxel_indices.append((z, y, x))
+
+            # If the batch is full, process it
+            if len(slice_batch) == batch_size:
+                batch_count += 1
+
+                voxel_features_batch = extract_features_from_model_batch(slice_batch, model)
+
+                # Store the features for each voxel in the batch
+                for i, voxel_features in enumerate(voxel_features_batch):
+                    z_idx, y_idx, x_idx = voxel_indices[i]
+                    out_array[:, z_idx, y_idx, x_idx] = voxel_features.cpu().numpy().squeeze()
+
+                # Clear the batch and voxel indices for the next iteration
+                slice_batch = []
+                voxel_indices = []
+
+                pbar.update(1)
+
+        # Process any remaining patches that didn't fill the final batch
+        if slice_batch:
+            voxel_features_batch = extract_features_from_model_batch(slice_batch, model)
+
+            # Store the features for each voxel in the batch
+            for i, voxel_features in enumerate(voxel_features_batch):
+                z_idx, y_idx, x_idx = voxel_indices[i]
+                out_array[:, z_idx, y_idx, x_idx] = voxel_features.cpu().numpy().squeeze()
+
+            pbar.update(1)
+
+    print(f"Feature extraction complete. Processed {batch_count} batches.")
     print(f"Features saved under feature type '{feature_type}'")
 
 setup(
     group="copick",
     name="generate-dino-features",
-    version="0.0.5",
+    version="0.0.6",
     title="Generate DINOv2 Features from a Copick Run",
     description="Extract multiscale features from a tomogram using DINOv2 (ViT) and save them using Copick's API.",
     solution_creators=["Kyle Harrington"],
@@ -177,6 +218,10 @@ setup(
         {"name": "voxel_spacing", "type": "float", "required": True, "description": "Voxel spacing to be used."},
         {"name": "tomo_type", "type": "string", "required": True, "description": "Type of tomogram to process."},
         {"name": "feature_type", "type": "string", "required": True, "description": "Name for the feature type to be saved."},
+        {"name": "batch_size", "type": "integer", "required": False, "default": 1024, "description": "Batch size for processing."},
+        {"name": "stride_x", "type": "integer", "required": False, "default": 1, "description": "Stride along the x-axis."},
+        {"name": "stride_y", "type": "integer", "required": False, "default": 1, "description": "Stride along the y-axis."},
+        {"name": "stride_z", "type": "integer", "required": False, "default": 1, "description": "Stride along the z-axis."},
     ],
     run=run,
     dependencies={
