@@ -15,7 +15,7 @@ dependencies:
   - scipy
   - pip:
     - album
-    - "copick[all]>=0.5.2"
+    - "copick[all]>=0.6.0"
     - tqdm
     - torch-cubic-spline-grids
 """
@@ -274,7 +274,7 @@ def run():
 setup(
     group="copick",
     name="fit_sample",
-    version="0.7.1",
+    version="0.8.0",
     title="Fit Sample Volume",
     description="fit a mesh describing the sample from two sets of points defining upper and lower boundary.",
     solution_creators=["Utz H. Ermel"],

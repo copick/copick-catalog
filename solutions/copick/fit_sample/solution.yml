@@ -60,7 +60,7 @@ args:
   name: output_session
   required: false
   type: string
-changelog: Remove defaults
+changelog: null
 description: fit a mesh describing the sample from two sets of points defining upper
   and lower boundary.
 group: copick
@@ -74,6 +74,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-08-12T11:24:02.008689'
+timestamp: '2024-10-30T15:58:21.885349'
 title: Fit Sample Volume
-version: 0.7.1
+version: 0.8.0
