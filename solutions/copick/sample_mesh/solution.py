@@ -15,7 +15,7 @@ dependencies:
   - ome-zarr
   - pip:
     - album
-    - "copick[all]>=0.5.2"
+    - "copick[all]>=0.6.0"
     - tqdm
     - rtree
     - manifold3d
@@ -194,7 +194,7 @@ def run():
 setup(
     group="copick",
     name="sample_mesh",
-    version="0.5.1",
+    version="0.6.0",
     title="Sample points in/on/outside a mesh.",
     description="Sample random points in/on/outside a mesh.",
     solution_creators=["Utz H. Ermel"],

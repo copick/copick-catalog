@@ -74,7 +74,7 @@ args:
   name: output_session
   required: false
   type: string
-changelog: Remove defaults
+changelog: null
 description: Sample random points in/on/outside a mesh.
 group: copick
 license: MIT
@@ -87,6 +87,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-08-12T11:25:32.941931'
+timestamp: '2024-10-30T15:59:41.576511'
 title: Sample points in/on/outside a mesh.
-version: 0.5.1
+version: 0.6.0
