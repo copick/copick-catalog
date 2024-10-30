@@ -27,7 +27,7 @@ args:
   name: run_names
   required: false
   type: string
-changelog: Remove defaults
+changelog: null
 description: Create empty picks inside a copick project.
 group: copick
 license: MIT
@@ -39,6 +39,6 @@ tags:
 - setup
 - picks
 - creation
-timestamp: '2024-08-12T11:20:16.223156'
+timestamp: '2024-10-30T15:57:38.357039'
 title: Create empty picks.
-version: 0.3.1
+version: 0.4.0

@@ -13,7 +13,7 @@ dependencies:
   - numpy<2
   - pip:
     - album
-    - "copick[all]>=0.5.2"
+    - "copick[all]>=0.6.0"
 """
 
 
@@ -83,7 +83,7 @@ def run():
 setup(
     group="copick",
     name="create_empty_picks",
-    version="0.3.1",
+    version="0.4.0",
     title="Create empty picks.",
     description="Create empty picks inside a copick project.",
     solution_creators=["Utz H. Ermel"],
