@@ -16,7 +16,7 @@ dependencies:
   - scikit-image
   - pip:
     - album
-    - "copick[all]>=0.5.2"
+    - "copick[all]>=0.6.0"
     - tqdm
     - torch-cubic-spline-grids
 """
@@ -348,7 +348,7 @@ def run():
 setup(
     group="copick",
     name="fit_sample_seg",
-    version="0.9.1",
+    version="0.10.0",
     title="Fit Sample Volume from segmentation",
     description="fit a mesh describing the sample from a binary segmentation.",
     solution_creators=["Utz H. Ermel"],

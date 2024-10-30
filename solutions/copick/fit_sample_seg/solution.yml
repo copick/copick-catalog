@@ -65,7 +65,7 @@ args:
   name: output_session
   required: false
   type: string
-changelog: Remove defaults
+changelog: null
 description: fit a mesh describing the sample from a binary segmentation.
 group: copick
 license: MIT
@@ -78,6 +78,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-08-12T11:24:22.949479'
+timestamp: '2024-10-30T15:58:39.500053'
 title: Fit Sample Volume from segmentation
-version: 0.9.1
+version: 0.10.0
