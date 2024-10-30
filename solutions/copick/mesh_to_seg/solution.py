@@ -15,7 +15,7 @@ dependencies:
   - ome-zarr
   - pip:
     - album
-    - "copick[all]>=0.5.2"
+    - "copick[all]>=0.6.0"
     - tqdm
     - rtree
     - manifold3d
@@ -230,7 +230,7 @@ def run():
 setup(
     group="copick",
     name="mesh_to_seg",
-    version="0.7.1",
+    version="0.8.0",
     title="Convert Mesh to Segmentation",
     description="Convert a watertight mesh to a dense voxel segmentation.",
     solution_creators=["Utz H. Ermel"],

@@ -44,7 +44,7 @@ args:
   name: output_session
   required: false
   type: string
-changelog: Remove defaults
+changelog: null
 description: Convert a watertight mesh to a dense voxel segmentation.
 group: copick
 license: MIT
@@ -57,6 +57,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-08-12T11:25:15.394330'
+timestamp: '2024-10-30T15:59:20.633932'
 title: Convert Mesh to Segmentation
-version: 0.7.1
+version: 0.8.0
