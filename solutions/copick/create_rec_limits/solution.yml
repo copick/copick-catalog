@@ -36,7 +36,7 @@ args:
   name: output_session
   required: false
   type: string
-changelog: Remove defaults
+changelog: null
 description: Create a mesh defining the valid reconstructed area.
 group: copick
 license: MIT
@@ -49,6 +49,6 @@ tags:
 - fitting
 - surface
 - segmentation
-timestamp: '2024-08-12T11:23:17.575692'
+timestamp: '2024-10-30T15:58:01.537785'
 title: Create Reconstruction Limits
-version: 0.5.1
+version: 0.6.0
