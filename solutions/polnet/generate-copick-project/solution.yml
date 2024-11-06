@@ -24,6 +24,11 @@ args:
   name: tomo_shape
   required: false
   type: string
+- default: 1,5,0.5
+  description: Comma-separated list Tilt Shift Minimum, Maximum and Sigma Mis-Alignmnets
+  name: misalignment
+  required: false
+  type: string
 - default: 10
   description: Voxel Size for Simulated Tomograms
   name: voxel_size
@@ -60,6 +65,6 @@ tags:
 - deep learning
 - cryoet
 - tomogram
-timestamp: '2024-10-09T20:24:44.664237'
+timestamp: '2024-11-06T11:23:48.911452'
 title: Generate a Copick Project with polnet
 version: 0.1.0

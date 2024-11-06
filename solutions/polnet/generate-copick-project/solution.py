@@ -127,18 +127,19 @@ def run():
                 (minAng + i * angIncr for i in range(int((maxAng - minAng) / angIncr) + 1))
                 if angle <= maxAng]
 
-    # Do we Always want to Hard Code this ?
-    MALIGN_MIN, MALIGN_MAX, MALIGN_SIGMA = 1, 5, 0.5
+    # Read Mis-Alignments in Tilt Series
+    MALIGNS = split_float_args(args.misalignment)
+    MALIGN_MIN = MALIGNS[0]; MALIGN_MAX = MALIGNS[1]; MALIGN_SIGMA = MALIGNS[2]
 
     print(f'\n[Polnet - Protein Inputs]\nConfig_Path: {COPICK_CONFIG_PATH}\nProtein List: {PROTEINS_LIST}\nMembrane-Bound Protein List: {MB_PROTEINS_LIST}\nMembranes List: {MEMBRANES_LIST}')
     print(f'\n[Polnet - Copick Write Query]\nUserID: {USER_ID}\nSessionID: {SESSION_ID}\nSegmentation Name: {SEGMENTATION_NAME}\nTomogram Name: {TOMO_TYPE}')
-    print(f'\n[Polnet - Tomogram Simulation Parameters]\nVoxel Size: {voxel_spacing}\nTomo Dimensions (Voxels): {VOI_SHAPE}\nSNR: {DETECTOR_SNR}\n'
+    print(f'\n[Polnet - Tomogram Simulation Parameters]\nVoxel Size: {voxel_spacing}\nTomo Dimensions (Voxels): {VOI_SHAPE}\nTilt-Series Misalignment: {MALIGNS}\nSNR: {DETECTOR_SNR}\n'
          f'Number of Tomos Per SNR: {NUM_TOMOS_PER_SNR}\nTilt Series Range (Min,Max,Delta): {minAng}, {maxAng}, {angIncr}\nTilt Angles: {TILT_ANGS}\n')    
 
     # Iterate Per SNR
     run_ids = [run.name for run in root.runs] 
     if len(run_ids) == 0:   currTSind = 1
-    else:   currTSind = int(max(run_ids, key=lambda x: int(x.split('_')[1])).split('_')[1]) + 1
+    else:  currTSind = int(max(run_ids, key=lambda x: int(x.split('_')[1])).split('_')[1]) + 1
     for SNR in DETECTOR_SNR:
 
         # Per SNR, Produce A Certain Number of Tomograms
@@ -198,6 +199,7 @@ setup(
         {"name": "snr", "type": "string", "required": False, "default": "0.5", "description": "Comma-separated list of SNRs to Apply to Tomograms"}, 
         {"name": "tilt_range", "type":"string", "required": False, "default": "-60,60,3", "description": "Comma-separated List of Min,Max and Increment for the Tilt Range"},
         {"name": "tomo_shape", "type":"string", "required": False, "default": "630,630,200", "description": "Comma-separated List of Tomogram Dimensions (in Pixels)" },
+        {"name": "misalignment", "type": "string", "required": False, "default": "1,5,0.5","description": "Comma-separated list Tilt Shift Minimum, Maximum and Sigma Mis-Alignmnets"},        
         {"name": "voxel_size", "type": "float", "required": False, "default": 10, "description": "Voxel Size for Simulated Tomograms"},     
         {"name": "proteins_list", "type": "string", "required": True, "description": "Comma-separated list of protein file paths"},
         {"name": "mb_proteins_list", "type": "string", "required": False,  "default": "", "description": "Comma-separated list of membrane protein file paths"},
